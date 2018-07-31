@@ -1,13 +1,11 @@
 <?php
 
-namespace Cardinity\Payments\Controller\Payment;
+namespace Cardinity\Magento\Controller\Payment;
 
-class Redirect extends \Cardinity\Payments\Controller\Payment
+class Redirect extends \Cardinity\Magento\Controller\Payment
 {
     public function execute()
     {
-        $this->_log('called ' . __METHOD__);
-
         $authModel = $this->_getAuthModel();
 
         if ($authModel && $authModel->getSuccess()) {
@@ -16,7 +14,7 @@ class Redirect extends \Cardinity\Payments\Controller\Payment
         } elseif ($authModel && $authModel->getThreeDSecureNeeded()) {
             $this->_log('redirecting buyer to auth page');
             $this->_forceRedirect('cardinity/payment/auth');
-        } elseif ($authModel->getFailure()) {
+        } elseif ($authModel && $authModel->getFailure()) {
             $this->_log('redirecting buyer to failure page');
             $this->_forceRedirect('cardinity/payment/failure');
         } else {

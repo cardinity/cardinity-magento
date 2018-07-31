@@ -5,7 +5,7 @@
             <cardinity>
                 <active>0</active>
                 <title>Cardinity</title>
-                <model>Cardinity\Payments\Model\PaymentModel</model>
+                <model>Cardinity\Magento\Model\PaymentModel</model>
                 <payment_action>sale</payment_action>
                 <order_status>pending_payment</order_status>
                 <cctypes>MC,MI,VI,DN</cctypes>

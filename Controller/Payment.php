@@ -1,14 +1,15 @@
 <?php
 
-namespace Cardinity\Payments\Controller;
+namespace Cardinity\Magento\Controller;
 
 abstract class Payment extends \Magento\Framework\App\Action\Action
 {
     public function __construct(
         \Magento\Framework\App\Action\Context $context,
-        \Psr\Log\LoggerInterface $logger,
+        \Cardinity\Magento\Logger\Logger $logger,
         \Magento\Framework\View\Result\PageFactory $pageFactory
-    ) {
+    )
+    {
         parent::__construct(
             $context
         );
@@ -31,12 +32,12 @@ abstract class Payment extends \Magento\Framework\App\Action\Action
 
     protected function _getAuthModel()
     {
-        return $this->_objectManager->create('Cardinity\Payments\Model\AuthModel');
+        return $this->_objectManager->create('Cardinity\Magento\Model\AuthModel');
     }
 
     protected function _getPaymentModel()
     {
-        return $this->_objectManager->create('Cardinity\Payments\Model\PaymentModel');
+        return $this->_objectManager->create('Cardinity\Magento\Model\PaymentModel');
     }
 
     protected function _setMessage($message, $type)
@@ -57,9 +58,13 @@ abstract class Payment extends \Magento\Framework\App\Action\Action
         }
     }
 
-    protected function _log($message)
+    protected function _log($message, $id = null)
     {
-        $this->_logger->info('Cardinity Gateway: ' . $message);
+        if ($id) {
+            $this->_logger->info('Cardinity Gateway: ' . $id . ' - ' . $message);
+        } else {
+            $this->_logger->info('Cardinity Gateway: ' . $message);
+        }
     }
 
     protected function _cancel()
@@ -70,10 +75,10 @@ abstract class Payment extends \Magento\Framework\App\Action\Action
         $orderModel = $this->_getOrderModel();
 
         $order = $orderModel->load($authModel->getOrderId());
-        $state = $order->getState();
 
-        if ($order->getId() && $state == $orderModel::STATE_PENDING_PAYMENT) {
+        if ($order && $order->getId() && $order->getState() == $orderModel::STATE_PENDING_PAYMENT) {
             $order->cancel()->save();
+            $this->_log('Order cancelled', $order->getRealOrderId());
             $this->_setMessage(__('Your order has been canceled.'), 'notice');
         } else {
             $this->_setMessage(__('Unexpected error occurred. Please contact support.'), 'error');
@@ -88,37 +93,46 @@ abstract class Payment extends \Magento\Framework\App\Action\Action
         $orderModel = $this->_getOrderModel();
 
         $order = $orderModel->load($authModel->getOrderId());
-        $state = $order->getState();
 
-        if ($order->getId() && $state == $orderModel::STATE_PENDING_PAYMENT) {
-            $order->setState($orderModel::STATE_PROCESSING);
-            $order->setStatus($orderModel::STATE_PROCESSING);
-            $order->setEmailSent(true);
-            $order->save();
+        if ($order && $order->getId() && $order->getState() == $orderModel::STATE_PENDING_PAYMENT) {
+            try {
+                $order->setState($orderModel::STATE_PROCESSING);
+                $order->setStatus($orderModel::STATE_PROCESSING);
+                $order->setEmailSent(true);
+                $order->save();
 
-            $this->_createInvoice($order);
+                $this->_log('Order marked as paid', $order->getRealOrderId());
 
-            return true;
+                $this->_createInvoice($order);
+
+                return true;
+            } catch (\Exception $exception) {
+                return false;
+            }
         }
-
         return false;
     }
 
-    protected function _createInvoice($orderObj)
+    protected function _createInvoice($order)
     {
-        $this->_log('called ' . __METHOD__);
-
-        if (!$orderObj->canInvoice()) {
+        if (!$order->canInvoice()) {
             return false;
         }
-        $invoice = $orderObj->prepareInvoice();
-        $invoice->register();
-        if ($invoice->canCapture()) {
-            $invoice->capture();
-        }
-        $invoice->save();
-        $orderObj->addRelatedObject($invoice);
 
-        return $invoice;
+        try {
+            $invoice = $order->prepareInvoice();
+            $invoice->register();
+            if ($invoice->canCapture()) {
+                $invoice->capture();
+            }
+            $invoice->save();
+            $order->addRelatedObject($invoice);
+
+            $this->_log('Invoice created', $order->getRealOrderId());
+
+            return true;
+        } catch (\Exception $exception) {
+            return false;
+        }
     }
 }

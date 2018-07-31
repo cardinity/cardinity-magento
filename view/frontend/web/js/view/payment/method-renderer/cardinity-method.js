@@ -14,7 +14,7 @@ define(
             redirectAfterPlaceOrder: false,
 
             defaults: {
-                template: 'Cardinity_Payments/payment/cardinity-form'
+                template: 'Cardinity_Magento/payment/cardinity-form'
             },
 
             getCode: function () {

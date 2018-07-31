@@ -1,6 +1,6 @@
 <?php
 
-namespace Cardinity\Payments\Block;
+namespace Cardinity\Magento\Block;
 
 class AuthBlock extends \Magento\Framework\View\Element\Template
 {
@@ -40,6 +40,6 @@ class AuthBlock extends \Magento\Framework\View\Element\Template
 
     private function _getAuthModel()
     {
-        return $this->_objectManager->create('Cardinity\Payments\Model\AuthModel');
+        return $this->_objectManager->create('Cardinity\Magento\Model\AuthModel');
     }
 }

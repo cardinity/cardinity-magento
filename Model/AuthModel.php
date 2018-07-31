@@ -1,12 +1,13 @@
 <?php
 
-namespace Cardinity\Payments\Model;
+namespace Cardinity\Magento\Model;
 
 class AuthModel
 {
     public function __construct(
         \Magento\Checkout\Model\Session $checkoutSession
-    ) {
+    )
+    {
         $this->_checkoutSession = $checkoutSession;
     }
 

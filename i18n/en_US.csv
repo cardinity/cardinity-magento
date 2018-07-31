@@ -5,3 +5,4 @@
 "Invalid order amount. Minimum amount: 0.50!","Invalid order amount. Minimum amount: 0.50!"
 "Your order has been canceled.","Your order has been canceled."
 "Continue","Continue"
+"Validation error: ","Validation error: "

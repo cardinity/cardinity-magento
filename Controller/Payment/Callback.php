@@ -1,17 +1,15 @@
 <?php
 
-namespace Cardinity\Payments\Controller\Payment;
+namespace Cardinity\Magento\Controller\Payment;
 
-class Callback extends \Cardinity\Payments\Controller\Payment
+class Callback extends \Cardinity\Magento\Controller\Payment
 {
     public function execute()
     {
-        $this->_log('called ' . __METHOD__);
-
         if (!$this->getRequest()->isPost() || empty($this->getRequest()->getPost('PaRes')) || empty($this->getRequest()->getPost('MD'))) {
-            $this->_log('invalid callback notification received. Wrong request type or missing mandatory parameters.');
+            $this->_log('Invalid callback notification received. Wrong request type or missing mandatory parameters.');
 
-            $this->_forceRedirect('checkout');
+            return $this->_forceRedirect('checkout');
         }
 
         $authModel = $this->_getAuthModel();
@@ -26,28 +24,30 @@ class Callback extends \Cardinity\Payments\Controller\Payment
             || $order->getRealOrderId() !== $orderId
             || $order->getState() !== $orderModel::STATE_PENDING_PAYMENT
         ) {
-            $this->_log('invalid callback notification received. Order validation failed.');
+            $this->_log('Invalid callback notification received. Order validation failed.');
             $authModel->cleanup();
 
-            $this->_forceRedirect('checkout');
+            return $this->_forceRedirect('checkout');
         }
 
-        // finalize payment
+        $this->_log('Finalizing payment', $order->getRealOrderId());
+
         $model = $this->_getPaymentModel();
-        $this->_log('attempting to finalize payment');
         $finalize = $model->finalize($authModel->getPaymentId(), $pares);
         if ($finalize) {
-            $this->_log('payment finalized successfully');
+            $this->_log('Payment finalized successfully', $order->getRealOrderId());
+
             $authModel->setSuccess(true);
             $this->_success();
 
             $this->_forceRedirect('checkout/onepage/success');
         } else {
-            $this->_log('payment finalization failed');
+            $this->_log('Payment finalization failed', $order->getRealOrderId());
+
             $authModel->setFailure(true);
             $this->_cancel();
 
-            $this->_forceRedirect('checkout/onepage/failure');
+            $this->_forceRedirect('checkout/cart');
         }
     }
 }

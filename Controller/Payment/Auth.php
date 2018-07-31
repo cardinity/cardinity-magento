@@ -1,13 +1,11 @@
 <?php
 
-namespace Cardinity\Payments\Controller\Payment;
+namespace Cardinity\Magento\Controller\Payment;
 
-class Auth extends \Cardinity\Payments\Controller\Payment
+class Auth extends \Cardinity\Magento\Controller\Payment
 {
     public function execute()
     {
-        $this->_log('called ' . __METHOD__);
-
         $authModel = $this->_getAuthModel();
 
         if ($authModel && $authModel->getThreeDSecureNeeded()) {

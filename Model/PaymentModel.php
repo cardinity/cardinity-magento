@@ -1,11 +1,14 @@
 <?php
 
-namespace Cardinity\Payments\Model;
+namespace Cardinity\Magento\Model;
 
 use Cardinity\Client;
+use Cardinity\Exception;
 use Cardinity\Method\MethodInterface;
 use Cardinity\Method\Payment;
-use Cardinity\Exception;
+use Magento\Framework\Exception\PaymentException;
+use Magento\Framework\Exception\ValidatorException;
+use Magento\Framework\Phrase;
 
 class PaymentModel extends \Magento\Payment\Model\Method\Cc
 {
@@ -41,7 +44,8 @@ class PaymentModel extends \Magento\Payment\Model\Method\Cc
         \Magento\Framework\Message\ManagerInterface $messageManager,
         \Magento\Store\Model\StoreManagerInterface $storeManager,
         array $data = []
-    ) {
+    )
+    {
         parent::__construct(
             $context,
             $registry,
@@ -81,30 +85,23 @@ class PaymentModel extends \Magento\Payment\Model\Method\Cc
      */
     public function initialize($paymentAction, $stateObject)
     {
-        $this->_log('called ' . __METHOD__);
-
         parent::initialize($paymentAction, $stateObject);
 
         if ($paymentAction != 'sale') {
             $this->_log('Wrong payment action. Only sale is allowed.');
-            $this->_setMessage(__('Internal error occurred. Please contact support.'), 'error');
+            throw new PaymentException(new Phrase(__('Request failed. Please contact support.')));
         }
 
         $orderModel = $this->_getOrderModel();
-        $state = $orderModel::STATE_PENDING_PAYMENT;
-
-        // Set the default state of a new order.
-        $stateObject->setState($state);
-        $stateObject->setStatus($state);
+        $stateObject->setState($orderModel::STATE_PENDING_PAYMENT);
+        $stateObject->setStatus($orderModel::STATE_PENDING_PAYMENT);
         $stateObject->setIsNotified(false);
-        $this->_log('order status changed to pending payment');
 
-        // Make initial payment attempt
         try {
             $this->_makePayment();
         } catch (Exception $e) {
             $this->_log($e->getMessage());
-            $this->_setMessage(__('Internal error occurred. Please contact support.'), 'error');
+            throw new PaymentException(new Phrase(__('Internal error occurred. Please contact support.')));
         }
 
         return $this;
@@ -112,19 +109,13 @@ class PaymentModel extends \Magento\Payment\Model\Method\Cc
 
     protected function _makePayment()
     {
-        $this->_log('called ' . __METHOD__);
-
-        // Process payment
         $payment = $this->getInfoInstance();
         $order = $payment->getOrder();
-
         $order->save();
 
         $amount = $order->getTotalDue();
-
-        // Validate minimum sale amount
         if ($amount < $this->_minAmount) {
-            $this->_setMessage(__('Invalid order amount. Minimum amount: 0.50!'), 'error');
+            throw new PaymentException(new Phrase(__('Invalid order amount. Minimum amount: 0.50!')));
         }
 
         $holder = mb_substr(sprintf(
@@ -149,30 +140,25 @@ class PaymentModel extends \Magento\Payment\Model\Method\Cc
             ],
         ]);
 
-        try {
-            $result = $this->_call($method);
+        $result = $this->_call($method);
 
-            $authModel = $this->_getAuthModel();
-            $authModel->cleanup();
+        $authModel = $this->_getAuthModel();
+        $authModel->cleanup();
 
-            if ($result) {
-                $authModel->setOrderId($order->getId());
-                $authModel->setRealOrderId($order->getRealOrderId());
-                $authModel->setPaymentId($result->getId());
-                if ($result->isApproved()) {
-                    $authModel->setSuccess(true);
-                } elseif ($result->isPending()) {
-                    $authData = $result->getAuthorizationInformation();
-                    $authModel->setThreeDSecureNeeded(true);
-                    $authModel->setUrl($authData->getUrl());
-                    $authModel->setData($authData->getData());
-                }
-            } else {
-                $authModel->setFailure(true);
+        if ($result) {
+            $authModel->setOrderId($order->getId());
+            $authModel->setRealOrderId($order->getRealOrderId());
+            $authModel->setPaymentId($result->getId());
+            if ($result->isApproved()) {
+                $authModel->setSuccess(true);
+            } elseif ($result->isPending()) {
+                $authData = $result->getAuthorizationInformation();
+                $authModel->setThreeDSecureNeeded(true);
+                $authModel->setUrl($authData->getUrl());
+                $authModel->setData($authData->getData());
             }
-        } catch (\Exception $e) {
-            $this->_log($e->getMessage());
-            $this->_setMessage(__('Unexpected error occurred. Please contact support.'), 'error');
+        } else {
+            $authModel->setFailure(true);
         }
     }
 
@@ -185,18 +171,18 @@ class PaymentModel extends \Magento\Payment\Model\Method\Cc
      */
     public function finalize($paymentId, $pares)
     {
-        $this->_log('called ' . __METHOD__);
-
         $method = new Payment\Finalize($paymentId, $pares);
 
         try {
             $result = $this->_call($method);
+        } catch (ValidatorException $e) {
+            return false;
         } catch (\Exception $e) {
             $this->_log($e->getMessage());
             $this->_setMessage(__('Unexpected error occurred. Please contact support.'), 'error');
         }
 
-        return $result && $result->isApproved();
+        return isset($result) && $result && $result->isApproved();
     }
 
     /**
@@ -207,8 +193,6 @@ class PaymentModel extends \Magento\Payment\Model\Method\Cc
      */
     public function canUseForCurrency($currencyCode)
     {
-        $this->_log('called ' . __METHOD__);
-
         if (!in_array($currencyCode, $this->_supportedCurrencyCodes)) {
             return false;
         }
@@ -222,13 +206,20 @@ class PaymentModel extends \Magento\Payment\Model\Method\Cc
         } catch (Exception\Declined $e) {
             $payment = $e->getResult();
             $this->_log('Payment ' . $payment->getId() . ' declined. Reason: ' . $payment->getError());
-            $this->_setMessage(__('Payment declined: ') . $payment->getError(), 'error');
+            throw new PaymentException(new Phrase(__('Payment declined: ') . $payment->getError()));
         } catch (Exception\Request $e) {
-            $this->_log($e->getMessage());
-            $this->_setMessage(__('Request failed. Please contact support.'), 'error');
+            if ($e->getErrors()) {
+                foreach ($e->getErrors() as $key => $error) {
+                    $this->_log($error['message']);
+                    throw new PaymentException(new Phrase(__('Validation error: ') . $error['message']));
+                }
+            } else {
+                $this->_log($e->getMessage());
+                throw new PaymentException(new Phrase(__('Request failed. Please contact support.')));
+            }
         } catch (Exception\Runtime $e) {
             $this->_log($e->getMessage());
-            $this->_setMessage(__('Internal error occurred. Please contact support.'), 'error');
+            throw new PaymentException(new Phrase(__('Internal error occurred. Please contact support.')));
         }
     }
 
@@ -257,7 +248,7 @@ class PaymentModel extends \Magento\Payment\Model\Method\Cc
 
     private function _getAuthModel()
     {
-        return $this->_objectManager->create('Cardinity\Payments\Model\AuthModel');
+        return $this->_objectManager->create('Cardinity\Magento\Model\AuthModel');
     }
 
     private function _getOrderModel()

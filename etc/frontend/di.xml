@@ -1,17 +1,30 @@
 <?xml version="1.0"?>
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
-    <virtualType name="Cardinity\Payments\Model\ConfigProvider" type="Magento\Payment\Model\CcGenericConfigProvider">
+    <virtualType name="Cardinity\Magento\Model\ConfigProvider" type="Magento\Payment\Model\CcGenericConfigProvider">
         <arguments>
             <argument name="methodCodes" xsi:type="array">
-                <item name="cardinity" xsi:type="const">Cardinity\Payments\Model\PaymentModel::CODE</item>
+                <item name="cardinity" xsi:type="const">Cardinity\Magento\Model\PaymentModel::CODE</item>
             </argument>
         </arguments>
     </virtualType>
     <type name="Magento\Checkout\Model\CompositeConfigProvider">
         <arguments>
             <argument name="configProviders" xsi:type="array">
-                <item name="cardinity_config_provider" xsi:type="object">Cardinity\Payments\Model\ConfigProvider</item>
+                <item name="cardinity_config_provider" xsi:type="object">Cardinity\Magento\Model\ConfigProvider</item>
+            </argument>
+        </arguments>
+    </type>
+    <type name="Cardinity\Magento\Logger\Handler">
+        <arguments>
+            <argument name="filesystem" xsi:type="object">Magento\Framework\Filesystem\Driver\File</argument>
+        </arguments>
+    </type>
+    <type name="Cardinity\Magento\Logger\Logger">
+        <arguments>
+            <argument name="name" xsi:type="string">cardinityLogHandler</argument>
+            <argument name="handlers" xsi:type="array">
+                <item name="system" xsi:type="object">Cardinity\Magento\Logger\Handler</item>
             </argument>
         </arguments>
     </type>

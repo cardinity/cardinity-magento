@@ -10,7 +10,7 @@ define(
         rendererList.push(
             {
                 type: 'cardinity',
-                component: 'Cardinity_Magento/js/view/payment/method-renderer/cardinity-method'
+                component: 'Cardinity_Payment/js/view/payment/method-renderer/cardinity-method'
             }
         );
 

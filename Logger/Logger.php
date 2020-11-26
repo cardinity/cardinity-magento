@@ -1,6 +1,6 @@
 <?php
 
-namespace Cardinity\Magento\Logger;
+namespace Cardinity\Payment\Logger;
 
 class Logger extends \Monolog\Logger
 {

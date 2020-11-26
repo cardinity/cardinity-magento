@@ -1,6 +1,6 @@
 <?php
 
-namespace Cardinity\Magento\Controller;
+namespace Cardinity\Payment\Controller;
 
 
 use Magento\Framework\App\CsrfAwareActionInterface;
@@ -11,7 +11,7 @@ abstract class Payment extends \Magento\Framework\App\Action\Action implements C
 {
     public function __construct(
         \Magento\Framework\App\Action\Context $context,
-        \Cardinity\Magento\Logger\Logger $logger,
+        \Cardinity\Payment\Logger\Logger $logger,
         \Magento\Framework\View\Result\PageFactory $pageFactory
     )
     {
@@ -56,12 +56,12 @@ abstract class Payment extends \Magento\Framework\App\Action\Action implements C
 
     protected function _getAuthModel()
     {
-        return $this->_objectManager->create('Cardinity\Magento\Model\AuthModel');
+        return $this->_objectManager->create('Cardinity\Payment\Model\AuthModel');
     }
 
     protected function _getPaymentModel()
     {
-        return $this->_objectManager->create('Cardinity\Magento\Model\PaymentModel');
+        return $this->_objectManager->create('Cardinity\Payment\Model\PaymentModel');
     }
 
     protected function _setMessage($message, $type)

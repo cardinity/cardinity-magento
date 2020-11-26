@@ -8,7 +8,7 @@ development module for cardinikty payment gateway
 * Magento Community Edition v2.0.0 or above
 
 ### How to use (via app/code)
-put this inside app/code/Cardinity/Magento
+put this inside app/code/Cardinity/Payment
 
 add 
 "require": {

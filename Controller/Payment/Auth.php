@@ -1,8 +1,8 @@
 <?php
 
-namespace Cardinity\Magento\Controller\Payment;
+namespace Cardinity\Payment\Controller\Payment;
 
-class Auth extends \Cardinity\Magento\Controller\Payment
+class Auth extends \Cardinity\Payment\Controller\Payment
 {
     public function execute()
     {

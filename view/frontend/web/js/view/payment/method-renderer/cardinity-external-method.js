@@ -12,7 +12,7 @@ define(
             redirectAfterPlaceOrder: false,
 
             defaults: {
-                template: 'Cardinity_Magento/payment/cardinity-external-form'
+                template: 'Cardinity_Payment/payment/cardinity-external-form'
             },
 
             getValue: {

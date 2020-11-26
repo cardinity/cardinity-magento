@@ -1,6 +1,6 @@
 <?php
 
-namespace Cardinity\Magento\Model;
+namespace Cardinity\Payment\Model;
 
 use Cardinity\Client;
 use Cardinity\Exception;
@@ -312,7 +312,7 @@ class PaymentModel extends \Magento\Payment\Model\Method\Cc
             return false;
         } catch (\Exception $e) {
             $this->_log($e->getMessage());
-            $this->_setMessage(__('Unexpected error occurred. Please contact support.'), 'error');
+            $this->_setMessage(__('Exception occurred. ').$e->getMessage(), 'error');
         }
 
         return isset($result) && $result && $result->isApproved();
@@ -383,7 +383,7 @@ class PaymentModel extends \Magento\Payment\Model\Method\Cc
 
     private function _getAuthModel()
     {
-        return $this->_objectManager->create('Cardinity\Magento\Model\AuthModel');
+        return $this->_objectManager->create('Cardinity\Payment\Model\AuthModel');
     }
 
     private function _getOrderModel()

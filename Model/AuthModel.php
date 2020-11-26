@@ -1,6 +1,6 @@
 <?php
 
-namespace Cardinity\Magento\Model;
+namespace Cardinity\Payment\Model;
 
 class AuthModel
 {

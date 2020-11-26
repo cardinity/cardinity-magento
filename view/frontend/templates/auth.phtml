@@ -1,3 +1,4 @@
+<h3>3D Secure validation required. If your browser dont redirect you in 3 seconds. Press <?php echo __('Continue') ?></h3>
 <form name="ThreeDForm" method="POST" action="<?php echo $block->getAuthUrl(); ?>">
     <button type="submit" class="action primary"><?php echo __('Continue') ?></button>
     <input type="hidden" name="PaReq" value="<?php echo $block->getAuthData(); ?>"/>
@@ -5,5 +6,7 @@
     <input type="hidden" name="MD" value="<?php echo $block->getRealOrderId(); ?>"/>
 </form>
 <script type="text/javascript">
-    document.ThreeDForm.submit();
+    window.onload=function(){ 
+        window.setTimeout(document.ThreeDForm.submit.bind(document.ThreeDForm), 3000);
+    };
 </script>

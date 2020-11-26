@@ -13,6 +13,9 @@
                 <group>offline</group>
                 <cardinity_key backend_model="Magento\Config\Model\Config\Backend\Encrypted"/>
                 <cardinity_secret backend_model="Magento\Config\Model\Config\Backend\Encrypted"/>
+                
+                <cardinity_project_id backend_model="Magento\Config\Model\Config\Backend\Encrypted"/>
+                <cardinity_project_secret backend_model="Magento\Config\Model\Config\Backend\Encrypted"/>
             </cardinity>
         </payment>
     </default>

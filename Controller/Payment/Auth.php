@@ -8,9 +8,9 @@ class Auth extends \Cardinity\Payment\Controller\Payment
     {
         $authModel = $this->_getAuthModel();
 
-        if ($authModel && $authModel->getThreeDSecureNeeded()) {
+        if ($authModel && ($authModel->getThreeDSecureNeeded() || $authModel->getThreeDSecureV2Needed())) {
             return $this->_pageFactory->create();
-        } else {
+        }else {
             $this->_setMessage(__('Invalid auth request.'), 'error');
             $authModel->cleanup();
 

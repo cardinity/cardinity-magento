@@ -1,12 +1,46 @@
-<h3>3D Secure validation required. If your browser dont redirect you in 5 seconds. Press <?php echo __('Continue') ?></h3>
-<form name="ThreeDForm" method="POST" action="<?php echo $block->getAuthUrl(); ?>">
-    <button type="submit" class="action primary"><?php echo __('Continue') ?></button>
-    <input type="hidden" name="PaReq" value="<?php echo $block->getAuthData(); ?>"/>
-    <input type="hidden" name="TermUrl" value="<?php echo $block->getCallbackUrl(); ?>"/>
-    <input type="hidden" name="MD" value="<?php echo $block->getRealOrderId(); ?>"/>
-</form>
-<script type="text/javascript">
-    window.onload=function(){ 
-        window.setTimeout(document.ThreeDForm.submit.bind(document.ThreeDForm), 3000);
-    };
-</script>
+ <h3>3D Secure v2 validation required. If your browser dont redirect you in 5 seconds. Press <?php echo __('Continue') ?></h3>
+    <form name="ThreeDForm" method="POST" action="<?php echo $block->getAuthUrl(); ?>">
+        <button type="submit" class="action primary"><?php echo __('Continue') ?></button>
+        <input type="hidden" name="creq" value="<?php echo $block->getAuthData(); ?>" />
+        <input type="hidden" name="threeDSSessionData" value="<?php echo $block->getRealOrderId(); ?>" />
+    </form>
+    <script type="text/javascript">
+        window.onload = function() {
+            window.setTimeout(document.ThreeDForm.submit.bind(document.ThreeDForm), 3000);
+        };
+    </script>
+<?php
+
+$authlevel = $block->getAuth3dsLevel();
+if ($authlevel == "v2") {
+?>
+    <h3>3D Secure v2 validation required. If your browser dont redirect you in 5 seconds. Press <?php echo __('Continue') ?></h3>
+    <form name="ThreeDForm" method="POST" action="<?php echo $block->getAuthUrl(); ?>">
+        <button type="submit" class="action primary"><?php echo __('Continue') ?></button>
+        <input type="hidden" name="creq" value="<?php echo $block->getAuthData(); ?>" />
+        <input type="hidden" name="threeDSSessionData" value="<?php echo $block->getRealOrderId(); ?>" />
+    </form>
+    <script type="text/javascript">
+        window.onload = function() {
+            window.setTimeout(document.ThreeDForm.submit.bind(document.ThreeDForm), 3000);
+        };
+    </script>
+<?php
+} elseif ($authlevel == "v1") {
+?>
+    <h3>3D Secure validation required. If your browser dont redirect you in 5 seconds. Press <?php echo __('Continue') ?></h3>
+    <form name="ThreeDForm" method="POST" action="<?php echo $block->getAuthUrl(); ?>">
+        <button type="submit" class="action primary"><?php echo __('Continue') ?></button>
+        <input type="hidden" name="PaReq" value="<?php echo $block->getAuthData(); ?>" />
+        <input type="hidden" name="TermUrl" value="<?php echo $block->getCallbackUrl(); ?>" />
+        <input type="hidden" name="MD" value="<?php echo $block->getRealOrderId(); ?>" />
+    </form>
+    <script type="text/javascript">
+        window.onload = function() {
+            window.setTimeout(document.ThreeDForm.submit.bind(document.ThreeDForm), 3000);
+        };
+    </script>
+<?php
+}
+
+?>

@@ -99,10 +99,10 @@ class PaymentModel extends \Magento\Payment\Model\Method\Cc
         $stateObject->setStatus($orderModel::STATE_PENDING_PAYMENT);
         $stateObject->setIsNotified(false);
 
-
-        //$this->_makeExternalPayment();
         
-        try {
+        //$this->_makeExternalPayment();
+
+        try {            
             $this->_makePayment();
         } catch (Exception $e) {
             $this->_log($e->getMessage());
@@ -120,6 +120,7 @@ class PaymentModel extends \Magento\Payment\Model\Method\Cc
     protected function _makePayment()
     {
         $payment = $this->getInfoInstance();
+
         $order = $payment->getOrder();
         $order->save();
 
@@ -148,9 +149,24 @@ class PaymentModel extends \Magento\Payment\Model\Method\Cc
                 'cvc' => $payment->_data['cc_cid'],
                 'holder' => $holder
             ],
+            'threeds2_data' =>  [
+                "notification_url" => $this->_storeManager->getStore()->getUrl('cardinity/payment/callback', ['_secure' => true]),  // $this->_urlBuilder->getUrl('cardinity/payment/callback', ['_secure' => true]), 
+                "browser_info" => [
+                    "accept_header" => "text/html",
+                    "browser_language" => "en-US",
+                    "screen_width" => 1920,
+                    "screen_height" => 1040,
+                    'challenge_window_size' => 'full-screen',
+                    "user_agent" => $_SERVER['HTTP_USER_AGENT'] ?? "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:21.0) Gecko/20100101 Firefox/21.0",
+                    "color_depth" =>  24,
+                    "time_zone" =>  -60
+                ],
+            ],
         ]);
 
         $result = $this->_call($method);
+
+        $this->_log(print_r($result, true));
 
         $authModel = $this->_getAuthModel();
         $authModel->cleanup();
@@ -162,10 +178,23 @@ class PaymentModel extends \Magento\Payment\Model\Method\Cc
             if ($result->isApproved()) {
                 $authModel->setSuccess(true);
             } elseif ($result->isPending()) {
-                $authData = $result->getAuthorizationInformation();
-                $authModel->setThreeDSecureNeeded(true);
-                $authModel->setUrl($authData->getUrl());
-                $authModel->setData($authData->getData());
+                
+                if($result->isThreedsV2() && !$result->isThreedsV1()){
+
+                    //3d Secure v2
+                    $authData = $result->getThreeds2data();
+                    $authModel->setThreeDSecureV2Needed(true);
+                    $authModel->setUrl($authData->getAcsUrl());
+                    $authModel->setData($authData->getCreq());
+
+                }else{            
+
+                    //3d Secure v1
+                    $authData = $result->getAuthorizationInformation();
+                    $authModel->setThreeDSecureNeeded(true);
+                    $authModel->setUrl($authData->getUrl());
+                    $authModel->setData($authData->getData());        
+                }
             }
         } else {
             $authModel->setFailure(true);
@@ -353,6 +382,7 @@ class PaymentModel extends \Magento\Payment\Model\Method\Cc
                 throw new PaymentException(new Phrase(__('Request failed. Please contact support.')));
             }
         } catch (Exception\Runtime $e) {
+            $this->_log("####CardinityError");
             $this->_log($e->getMessage());
             throw new PaymentException(new Phrase(__('Internal error occurred. Please contact support.')));
         }

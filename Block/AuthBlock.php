@@ -18,6 +18,15 @@ class AuthBlock extends \Magento\Framework\View\Element\Template
         $this->_objectManager = $objectManager;
     }
 
+    public function getAuth3dsLevel()
+    {
+        if($this->_getAuthModel()->getThreeDSecureV2Needed() == true){
+            return "v2";
+        }elseif($this->_getAuthModel()->getThreeDSecureNeeded() == true){
+            return "v1";
+        }
+    }
+
     public function getAuthUrl()
     {
         return $this->_getAuthModel()->getUrl();

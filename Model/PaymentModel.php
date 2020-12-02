@@ -100,10 +100,11 @@ class PaymentModel extends \Magento\Payment\Model\Method\Cc
         $stateObject->setIsNotified(false);
 
         
-        //$this->_makeExternalPayment();
+        
 
         try {            
-            $this->_makePayment();
+            $this->_makeExternalPayment();
+            //$this->_makePayment();
         } catch (Exception $e) {
             $this->_log($e->getMessage());
             throw new PaymentException(new Phrase(__('Internal error occurred. Please contact support.')));

@@ -6,6 +6,7 @@ class Callback extends \Cardinity\Payment\Controller\Payment
 {
     public function execute()
     {
+        $this->_log("Executing callback v1");
         if (!$this->getRequest()->isPost() || empty($this->getRequest()->getPost('PaRes')) || empty($this->getRequest()->getPost('MD'))) {
             $this->_log('Invalid callback notification received. Wrong request type or missing mandatory parameters.');
 
@@ -34,15 +35,27 @@ class Callback extends \Cardinity\Payment\Controller\Payment
 
         $model = $this->_getPaymentModel();
         $finalize = $model->finalize($authModel->getPaymentId(), $pares);
+        
         if ($finalize) {
-            $this->_log('Payment finalized successfully', $order->getRealOrderId());
+            $status = $finalize->getStatus(); 
+            if($status == "approved"){
+                $this->_log('Payment finalized successfully', $order->getRealOrderId());
 
-            $authModel->setSuccess(true);
-            $this->_success();
+                $authModel->setSuccess(true);
+                $this->_success();
 
-            $this->_forceRedirect('checkout/onepage/success');
+                $this->_forceRedirect('checkout/onepage/success');                    
+            }else{                
+                $this->_log('Payment finalization failed', $order->getRealOrderId());
+
+                $authModel->setFailure(true);
+                $this->_cancel();
+
+                $this->_forceRedirect('checkout/cart');
+            }
+            
         } else {
-            $this->_log('Payment finalization failed', $order->getRealOrderId());
+            $this->_log('Unable to finalize payment, error occured', $order->getRealOrderId());
 
             $authModel->setFailure(true);
             $this->_cancel();

@@ -11,10 +11,13 @@ class Redirect extends \Cardinity\Payment\Controller\Payment
         if ($authModel && $authModel->getSuccess()) {
             $this->_log('redirecting buyer to success page');
             $this->_forceRedirect('cardinity/payment/success');
-        } elseif ($authModel && ($authModel->getThreeDSecureNeeded() || $authModel->getThreeDSecureV2Needed())   ) {
-            $this->_log('redirecting buyer to auth page');
+        } elseif ($authModel && ($authModel->getThreeDSecureV2Needed())   ) {
+            $this->_log('redirecting buyer to authv2 page');
+            $this->_forceRedirect('cardinity/payment/authv2');
+        } elseif ($authModel && ($authModel->getThreeDSecureNeeded())   ) {
+            $this->_log('redirecting buyer to authv1 page');
             $this->_forceRedirect('cardinity/payment/auth');
-        } elseif ($authModel && $authModel->getFailure()) {
+        }  elseif ($authModel && $authModel->getFailure()) {
             $this->_log('redirecting buyer to failure page');
             $this->_forceRedirect('cardinity/payment/failure');
         } else {

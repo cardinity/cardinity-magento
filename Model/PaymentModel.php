@@ -150,7 +150,7 @@ class PaymentModel extends \Magento\Payment\Model\Method\Cc
                 'holder' => $holder
             ],
             'threeds2_data' =>  [
-                "notification_url" => $this->_storeManager->getStore()->getUrl('cardinity/payment/callback', ['_secure' => true]),  // $this->_urlBuilder->getUrl('cardinity/payment/callback', ['_secure' => true]), 
+                "notification_url" => $this->_storeManager->getStore()->getUrl('cardinity/payment/callbackv2', ['_secure' => true]),  // $this->_urlBuilder->getUrl('cardinity/payment/callback', ['_secure' => true]), 
                 "browser_info" => [
                     "accept_header" => "text/html",
                     "browser_language" => "en-US",
@@ -331,9 +331,9 @@ class PaymentModel extends \Magento\Payment\Model\Method\Cc
      * @param string $pares payer authentication response received from ACS
      * @return boolean
      */
-    public function finalize($paymentId, $pares)
+    public function finalize($paymentId, $data, $isV2 = false)
     {
-        $method = new Payment\Finalize($paymentId, $pares);
+        $method = new Payment\Finalize($paymentId, $data, $isV2);
 
         try {
             $result = $this->_call($method);
@@ -342,9 +342,11 @@ class PaymentModel extends \Magento\Payment\Model\Method\Cc
         } catch (\Exception $e) {
             $this->_log($e->getMessage());
             $this->_setMessage(__('Exception occurred. ').$e->getMessage(), 'error');
+            return false;
         }
 
-        return isset($result) && $result && $result->isApproved();
+        return $result;
+        //return isset($result) && $result && $result->isApproved();
     }
 
     

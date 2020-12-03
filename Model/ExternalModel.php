@@ -5,9 +5,11 @@ namespace Cardinity\Payment\Model;
 class ExternalModel
 {
     public function __construct(
-        \Magento\Checkout\Model\Session $checkoutSession
+        \Magento\Checkout\Model\Session $checkoutSession,
+        \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig
     )
     {
+       
         $this->_checkoutSession = $checkoutSession;
     }
 
@@ -92,6 +94,21 @@ class ExternalModel
         return $this->_getSession()->getData('crd_external_signature');
     }
 
+
+    //TODO: make it get from config instead of session
+    public function setSecret($signature)
+    {
+        $this->_getSession()->setData('crd_external_secret', $signature);
+    }
+
+    public function getSecret()
+    {
+        return $this->_getSession()->getData('crd_external_secret');
+    }
+
+
+
+
     public function setPaymentId($paymentId)
     {
         $this->_getSession()->setData('crd_payment_id', $paymentId);
@@ -157,14 +174,21 @@ class ExternalModel
         $this->_getSession()->setData('crd_external_project_id', null);
         $this->_getSession()->setData('crd_external_return_url', null);
         $this->_getSession()->setData('crd_external_signature', null);
+        $this->_getSession()->setData('crd_external_secret', null);
 
 
+        
         $this->_getSession()->setData('crd_payment_id', null);
         $this->_getSession()->setData('crd_order_id', null);
         $this->_getSession()->setData('crd_real_order_id', null);
         $this->_getSession()->setData('crd_success', null);
         $this->_getSession()->setData('crd_failure', null);
         
+    }
+
+    public function dump(){
+        //$this->_getSession()->setData('crd_my_test', "TESTSTSTSTS");
+        return $this->_getSession()->getData();
     }
 
     private function _getSession()

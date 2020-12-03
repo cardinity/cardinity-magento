@@ -59,6 +59,11 @@ abstract class Payment extends \Magento\Framework\App\Action\Action implements C
         return $this->_objectManager->create('Cardinity\Payment\Model\AuthModel');
     }
 
+    protected function _getExternalModel()
+    {
+        return $this->_objectManager->create('Cardinity\Payment\Model\ExternalModel');
+    }
+
     protected function _getPaymentModel()
     {
         return $this->_objectManager->create('Cardinity\Payment\Model\PaymentModel');
@@ -118,6 +123,11 @@ abstract class Payment extends \Magento\Framework\App\Action\Action implements C
 
         $order = $orderModel->load($authModel->getOrderId());
 
+        $this->_log("in success auth model :".$authModel->getOrderId() );
+        $this->_log("in success order state :".$order->getState() );
+        $this->_log("in success order id :".$order->getId() );
+        $this->_log("in success order :".$orderModel::STATE_PENDING_PAYMENT );
+
         if ($order && $order->getId() && $order->getState() == $orderModel::STATE_PENDING_PAYMENT) {
             try {
                 $order->setState($orderModel::STATE_PROCESSING);
@@ -131,11 +141,53 @@ abstract class Payment extends \Magento\Framework\App\Action\Action implements C
 
                 return true;
             } catch (\Exception $exception) {
+                $this->_log($exception->getMessage());
                 return false;
             }
+        }else{
+            $this->_log('success mismatch ');
         }
         return false;
     }
+
+    protected function _successExternal()
+    {
+        $this->_log('called ' . __METHOD__);
+
+        $externalModel = $this->_getExternalModel();
+        $orderModel = $this->_getOrderModel();
+
+        $order = $orderModel->load($externalModel->getOrderId());
+
+        $this->_log("in success auth model :".$externalModel->getOrderId() );
+        $this->_log("in success order state :".$order->getState() );
+        $this->_log("in success order id :".$order->getId() );
+        $this->_log("in success order :".$orderModel::STATE_PENDING_PAYMENT );
+
+        if ($order && $order->getId() 
+        //&& $order->getState() == $orderModel::STATE_PENDING_PAYMENT
+        ) {
+            try {
+                $order->setState($orderModel::STATE_PROCESSING);
+                $order->setStatus($orderModel::STATE_PROCESSING);
+                $order->setEmailSent(true);
+                $order->save();
+
+                $this->_log('Order marked as paid', $order->getRealOrderId());
+
+                $this->_createInvoice($order);
+
+                return true;
+            } catch (\Exception $exception) {
+                $this->_log($exception->getMessage());
+                return false;
+            }
+        }else{
+            $this->_log('success mismatch ');
+        }
+        return false;
+    }
+    
 
     protected function _createInvoice($order)
     {

@@ -151,7 +151,7 @@ class PaymentModel extends \Magento\Payment\Model\Method\Cc
                 'holder' => $holder
             ],
             'threeds2_data' =>  [
-                "notification_url" => $this->_storeManager->getStore()->getUrl('cardinity/payment/callbackv2', ['_secure' => true]),  // $this->_urlBuilder->getUrl('cardinity/payment/callback', ['_secure' => true]), 
+                "notification_url" => $this->_storeManager->getStore()->getUrl('cardinity/payment/callbackv2', ['_secure' => true]), 
                 "browser_info" => [
                     "accept_header" => "text/html",
                     "browser_language" => "en-US",
@@ -209,8 +209,14 @@ class PaymentModel extends \Magento\Payment\Model\Method\Cc
      */
     protected function _makeExternalPayment()
     {
+
+        $orderModel = $this->_getOrderModel();
         $payment = $this->getInfoInstance();
         $order = $payment->getOrder();
+
+        $order->setState($orderModel::STATE_PENDING);
+        $order->setStatus($orderModel::STATE_PENDING);
+
         $order->save();
 
         $amount = $order->getTotalDue();
@@ -218,24 +224,19 @@ class PaymentModel extends \Magento\Payment\Model\Method\Cc
             throw new PaymentException(new Phrase(__('Invalid order amount. Minimum amount: 0.50!')));
         }
 
-        $holder = mb_substr(sprintf(
-            '%s %s',
-            $order->getBillingAddress()->getData('firstname'),
-            $order->getBillingAddress()->getData('lastname')
-        ), 0, 32);
 
-                
-
-        $amount = "0.50";
-        $cancel_url = "https://your-shop.com/payment-cancelled";
-        $country = "LT";
-        $currency = "EUR";
-        $description = "Purchase Description";
-        $order_id = "123";
-        $return_url = "https://your-shop.com/payment-complete";
+       
+        $amount =  number_format(floatval($amount), 2); 
+        $cancel_url = $this->_storeManager->getStore()->getUrl('cardinity/payment/callbackexternal', ['_secure' => true]);
+        $country = $order->getBillingAddress()->getData('country_id');
+        $currency = $this->_storeManager->getStore()->getCurrentCurrency()->getCode();
+        $description = $order->getId();
+        $order_id = $order->getRealOrderId();
+        $return_url = $this->_storeManager->getStore()->getUrl('cardinity/payment/callbackexternal', ['_secure' => true]);
 
         $project_id = $this->getConfigData('cardinity_project_id');
         $project_secret = $this->getConfigData('cardinity_project_secret');
+
         $attributes = [
             "amount" => $amount,
             "currency" => $currency,
@@ -256,8 +257,44 @@ class PaymentModel extends \Magento\Payment\Model\Method\Cc
 
         $signature = hash_hmac('sha256', $message, $project_secret);
         
+        $this->_log("Preparing external payement");
+
+        
+
+        $externalModel = $this->_getExternalModel();
+        $externalModel->cleanup();
+
+
+        $externalModel->setOrderId($order->getId());
+        $externalModel->setRealOrderId($order->getRealOrderId());
+        //$externalModel->setPaymentId($result->getId());
+        
+ 
+        $externalModel->setAmount($amount);
+        $externalModel->setCancelUrl($cancel_url);
+        $externalModel->setCountry($country);
+        $externalModel->setCurrency($currency);
+        $externalModel->setDescription($description);
+        $externalModel->setProjectId($project_id);
+        $externalModel->setReturnUrl($return_url);
+        $externalModel->setSignature($signature);
+
+        //TODO: avoid putting secret on session
+        $externalModel->setSecret($project_secret);
+
+        $this->_log("External Model Prepd");
+
+
+
+        $store = $this->_storeManager->getStore();
+        $this->getResponse()->setRedirect('/' . $store->getCode() . '/cardinity/payment/external');
+
+        //$this->_forceRedirect('cardinity/payment/external');
+
+        
+
         //$script = 'document.forms["checkout"].submit()';
-        $script = '';
+        /*$script = '';
         
         echo "
         <html>
@@ -280,48 +317,9 @@ class PaymentModel extends \Magento\Payment\Model\Method\Cc
             </body>
         </html>";
     
-        exit();
+        exit();*/
         
 
-        /*$method = new Payment\Create([
-            'amount' => floatval($amount),
-            'currency' => $this->_storeManager->getStore()->getCurrentCurrency()->getCode(),
-            'settle' => true,
-            'order_id' => $order->getRealOrderId(),
-            'country' => $order->getBillingAddress()->getData('country_id'),
-            'payment_method' => Payment\Create::CARD,
-            'payment_instrument' => [
-                'pan' => $payment->_data['cc_number'],
-                'exp_year' => (int)$payment->_data['cc_exp_year'],
-                'exp_month' => (int)$payment->_data['cc_exp_month'],
-                'cvc' => $payment->_data['cc_cid'],
-                'holder' => $holder
-            ],
-        ]);
-
-        $result = $this->_call($method);*/
-
-
-
-
-        /*$authModel = $this->_getAuthModel();
-        $authModel->cleanup();
-
-        if ($result) {
-            $authModel->setOrderId($order->getId());
-            $authModel->setRealOrderId($order->getRealOrderId());
-            $authModel->setPaymentId($result->getId());
-            if ($result->isApproved()) {
-                $authModel->setSuccess(true);
-            } elseif ($result->isPending()) {
-                $authData = $result->getAuthorizationInformation();
-                $authModel->setThreeDSecureNeeded(true);
-                $authModel->setUrl($authData->getUrl());
-                $authModel->setData($authData->getData());
-            }
-        } else {
-            $authModel->setFailure(true);
-        }*/
     }
 
 
@@ -418,6 +416,14 @@ class PaymentModel extends \Magento\Payment\Model\Method\Cc
     {
         return $this->_objectManager->create('Cardinity\Payment\Model\AuthModel');
     }
+
+
+    private function _getExternalModel()
+    {
+        return $this->_objectManager->create('Cardinity\Payment\Model\ExternalModel');
+    }
+
+    
 
     private function _getOrderModel()
     {

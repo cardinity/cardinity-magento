@@ -2,6 +2,6 @@
 <page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" layout="1column"
       xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
     <referenceContainer name="content">
-        <block class="Cardinity\Payment\Block\ExternalBlock" name="cardinity" template="external.phtml"/>
+        <block class="Cardinity\Payment\Block\ExternalBlock" name="cardinity_external" template="external.phtml" cacheable="false"/>
     </referenceContainer>
 </page>

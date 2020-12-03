@@ -8,7 +8,11 @@ class Redirect extends \Cardinity\Payment\Controller\Payment
     {
         $authModel = $this->_getAuthModel();
 
-        if ($authModel && $authModel->getSuccess()) {
+        $externalModel = $this->_getExternalModel();
+        if($externalModel){
+            $this->_log('redirecting buyer to external hosted page');
+            $this->_forceRedirect('cardinity/payment/external');    
+        }elseif ($authModel && $authModel->getSuccess()) {
             $this->_log('redirecting buyer to success page');
             $this->_forceRedirect('cardinity/payment/success');
         } elseif ($authModel && ($authModel->getThreeDSecureV2Needed())   ) {

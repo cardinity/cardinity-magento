@@ -6,9 +6,6 @@ class External extends \Cardinity\Payment\Controller\Payment
 {
     public function execute()
     {
-
-        return $this->_pageFactory->create();
-/*
         $externalModel = $this->_getExternalModel();
 
         if ($externalModel) {
@@ -18,6 +15,6 @@ class External extends \Cardinity\Payment\Controller\Payment
             $externalModel->cleanup();
 
             $this->_forceRedirect('checkout');
-        }*/
+        }
     }
 }

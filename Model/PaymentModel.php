@@ -214,8 +214,8 @@ class PaymentModel extends \Magento\Payment\Model\Method\Cc
         $payment = $this->getInfoInstance();
         $order = $payment->getOrder();
 
-        $order->setState($orderModel::STATE_PENDING);
-        $order->setStatus($orderModel::STATE_PENDING);
+        $order->setState($orderModel::STATE_PENDING_PAYMENT);
+        $order->setStatus($orderModel::STATE_PENDING_PAYMENT);
 
         $order->save();
 

@@ -8,6 +8,7 @@ class External extends \Cardinity\Payment\Controller\Payment
     {
         $externalModel = $this->_getExternalModel();
 
+        $externalModel->dump();
         if ($externalModel) {
             return $this->_pageFactory->create();
         }else {

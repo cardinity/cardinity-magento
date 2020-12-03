@@ -47,18 +47,18 @@ class Callbackexternal extends \Cardinity\Payment\Controller\Payment
                     $externalModel->setPaymentId($postData['id']);
                     $externalModel->setSuccess(true);
 
-                    $authModel = $this->_getAuthModel();
+                    /*$authModel = $this->_getAuthModel();
                     $authModel->cleanup();
 
                     $authModel->setOrderId($order->getId());
                     $authModel->setRealOrderId($order->getRealOrderId());
                     $authModel->setPaymentId($postData['id']);
-                    $authModel->setSuccess(true);
+                    $authModel->setSuccess(true);*/
 
 
-                    $this->_successExternal();
+                    $this->_success($external = true);
     
-                    $this->_forceRedirect('checkout/onepage/success');                    
+                    $this->_forceRedirect('checkout/onepage/success');                       
                 }else{                
                     $this->_log('Payment failed', $order->getRealOrderId());
     

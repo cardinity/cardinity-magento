@@ -114,20 +114,32 @@ abstract class Payment extends \Magento\Framework\App\Action\Action implements C
         }
     }
 
-    protected function _success()
+    protected function _success($external = false)
     {
         $this->_log('called ' . __METHOD__);
 
-        $authModel = $this->_getAuthModel();
+        
         $orderModel = $this->_getOrderModel();
 
-        $order = $orderModel->load($authModel->getOrderId());
+        if($external == false){
+            $authModel = $this->_getAuthModel();
+            $order = $orderModel->load($authModel->getOrderId());
 
-        $this->_log("in success auth model :".$authModel->getOrderId() );
-        $this->_log("in success order state :".$order->getState() );
-        $this->_log("in success order id :".$order->getId() );
-        $this->_log("in success order :".$orderModel::STATE_PENDING_PAYMENT );
+            $this->_log("in ".__METHOD__." auth model :".$authModel->getOrderId() );
+        }else{
+            $externalModel = $this->_getAuthModel();
+            $order = $orderModel->load($externalModel->getOrderId());
 
+            $this->_log("in ".__METHOD__." external model :".$externalModel->getOrderId() );
+        }
+        
+
+        $this->_log("in ".__METHOD__." order state :".$order->getState() );
+        $this->_log("in ".__METHOD__." order id :".$order->getId() );
+        $this->_log("in ".__METHOD__." order :".$orderModel::STATE_PENDING_PAYMENT );
+        
+
+        
         if ($order && $order->getId() && $order->getState() == $orderModel::STATE_PENDING_PAYMENT) {
             try {
                 $order->setState($orderModel::STATE_PROCESSING);

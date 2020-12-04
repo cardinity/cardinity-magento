@@ -102,8 +102,17 @@ class PaymentModel extends \Magento\Payment\Model\Method\Cc
         
         
 
+        $external = $this->getConfigData('external_enabled');
+        $this->_log("External status ". $external);
+
+        if($external == 1){
+            $executeFunction = "_makeExternalPayment";
+        }else{
+            $executeFunction = "_makePayment";
+        }
+        
         try {            
-            $this->_makeExternalPayment();
+            $this->$executeFunction();
             //$this->_makePayment();
         } catch (Exception $e) {
             $this->_log($e->getMessage());

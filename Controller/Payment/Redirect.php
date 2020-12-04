@@ -7,9 +7,13 @@ class Redirect extends \Cardinity\Payment\Controller\Payment
     public function execute()
     {
         $authModel = $this->_getAuthModel();
-
         $externalModel = $this->_getExternalModel();
-        if($externalModel){
+
+        $external = $this->_configData->getConfig('payment/cardinity/external_enabled');
+
+        $this->_log("External on redirect ".$external);
+        
+        if($external == 1 && $externalModel){
             $this->_log('redirecting buyer to external hosted page');
             $this->_forceRedirect('cardinity/payment/external');    
         }elseif ($authModel && $authModel->getSuccess()) {

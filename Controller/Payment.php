@@ -9,6 +9,8 @@ use Magento\Framework\App\RequestInterface;
 
 abstract class Payment extends \Magento\Framework\App\Action\Action implements CsrfAwareActionInterface
 {
+    protected $_configData;
+
     public function __construct(
         \Magento\Framework\App\Action\Context $context,
         \Cardinity\Payment\Logger\Logger $logger,
@@ -23,6 +25,9 @@ abstract class Payment extends \Magento\Framework\App\Action\Action implements C
         $this->_messageManager = $context->getMessageManager();
         $this->_logger = $logger;
         $this->_pageFactory = $pageFactory;
+
+        
+        $this->_configData = $this->_objectManager->get('Cardinity\Payment\Helper\Data');
     }
 
      /**
@@ -43,6 +48,7 @@ abstract class Payment extends \Magento\Framework\App\Action\Action implements C
     }
 
     
+
 
     protected function _forceRedirect($url)
     {
@@ -121,6 +127,7 @@ abstract class Payment extends \Magento\Framework\App\Action\Action implements C
         
         $orderModel = $this->_getOrderModel();
 
+        //if internal
         if($external == false){
             $authModel = $this->_getAuthModel();
             $order = $orderModel->load($authModel->getOrderId());
@@ -162,7 +169,7 @@ abstract class Payment extends \Magento\Framework\App\Action\Action implements C
         return false;
     }
 
-    protected function _successExternal()
+    /*protected function _successExternal()
     {
         $this->_log('called ' . __METHOD__);
 
@@ -198,7 +205,7 @@ abstract class Payment extends \Magento\Framework\App\Action\Action implements C
             $this->_log('success mismatch ');
         }
         return false;
-    }
+    }*/
     
 
     protected function _createInvoice($order)

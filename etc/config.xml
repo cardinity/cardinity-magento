@@ -5,7 +5,7 @@
             <cardinity>
                 <active>0</active>
                 <title>Cardinity</title>
-                <model>Cardinity\Magento\Model\PaymentModel</model>
+                <model>Cardinity\Payment\Model\PaymentModel</model>
                 <payment_action>sale</payment_action>
                 <order_status>pending_payment</order_status>
                 <cctypes>MC,MI,VI,DN</cctypes>
@@ -13,6 +13,9 @@
                 <group>offline</group>
                 <cardinity_key backend_model="Magento\Config\Model\Config\Backend\Encrypted"/>
                 <cardinity_secret backend_model="Magento\Config\Model\Config\Backend\Encrypted"/>
+                
+                <cardinity_project_id backend_model="Magento\Config\Model\Config\Backend\Encrypted"/>
+                <cardinity_project_secret backend_model="Magento\Config\Model\Config\Backend\Encrypted"/>
             </cardinity>
         </payment>
     </default>

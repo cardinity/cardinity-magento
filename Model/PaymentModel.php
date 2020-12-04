@@ -1,6 +1,6 @@
 <?php
 
-namespace Cardinity\Magento\Model;
+namespace Cardinity\Payment\Model;
 
 use Cardinity\Client;
 use Cardinity\Exception;
@@ -9,6 +9,8 @@ use Cardinity\Method\Payment;
 use Magento\Framework\Exception\PaymentException;
 use Magento\Framework\Exception\ValidatorException;
 use Magento\Framework\Phrase;
+
+use Magento\Framework\OAuth;
 
 class PaymentModel extends \Magento\Payment\Model\Method\Cc
 {
@@ -97,7 +99,10 @@ class PaymentModel extends \Magento\Payment\Model\Method\Cc
         $stateObject->setStatus($orderModel::STATE_PENDING_PAYMENT);
         $stateObject->setIsNotified(false);
 
-        try {
+        
+        //$this->_makeExternalPayment();
+
+        try {            
             $this->_makePayment();
         } catch (Exception $e) {
             $this->_log($e->getMessage());
@@ -107,9 +112,15 @@ class PaymentModel extends \Magento\Payment\Model\Method\Cc
         return $this;
     }
 
+    /**
+     * Issue payment request
+     *
+     * @return void
+     */
     protected function _makePayment()
     {
         $payment = $this->getInfoInstance();
+
         $order = $payment->getOrder();
         $order->save();
 
@@ -138,11 +149,161 @@ class PaymentModel extends \Magento\Payment\Model\Method\Cc
                 'cvc' => $payment->_data['cc_cid'],
                 'holder' => $holder
             ],
+            'threeds2_data' =>  [
+                "notification_url" => $this->_storeManager->getStore()->getUrl('cardinity/payment/callbackv2', ['_secure' => true]),  // $this->_urlBuilder->getUrl('cardinity/payment/callback', ['_secure' => true]), 
+                "browser_info" => [
+                    "accept_header" => "text/html",
+                    "browser_language" => "en-US",
+                    "screen_width" => 1920,
+                    "screen_height" => 1040,
+                    'challenge_window_size' => 'full-screen',
+                    "user_agent" => $_SERVER['HTTP_USER_AGENT'] ?? "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:21.0) Gecko/20100101 Firefox/21.0",
+                    "color_depth" =>  24,
+                    "time_zone" =>  -60
+                ],
+            ],
         ]);
 
         $result = $this->_call($method);
 
+        $this->_log(print_r($result, true));
+
         $authModel = $this->_getAuthModel();
+        $authModel->cleanup();
+
+        if ($result) {
+            $authModel->setOrderId($order->getId());
+            $authModel->setRealOrderId($order->getRealOrderId());
+            $authModel->setPaymentId($result->getId());
+            if ($result->isApproved()) {
+                $authModel->setSuccess(true);
+            } elseif ($result->isPending()) {
+                
+                if($result->isThreedsV2() && !$result->isThreedsV1()){
+
+                    //3d Secure v2
+                    $authData = $result->getThreeds2data();
+                    $authModel->setThreeDSecureV2Needed(true);
+                    $authModel->setUrl($authData->getAcsUrl());
+                    $authModel->setData($authData->getCreq());
+
+                }else{            
+
+                    //3d Secure v1
+                    $authData = $result->getAuthorizationInformation();
+                    $authModel->setThreeDSecureNeeded(true);
+                    $authModel->setUrl($authData->getUrl());
+                    $authModel->setData($authData->getData());        
+                }
+            }
+        } else {
+            $authModel->setFailure(true);
+        }
+    }    
+
+    /**
+     * Issue External payment request
+     *
+     * @return void
+     */
+    protected function _makeExternalPayment()
+    {
+        $payment = $this->getInfoInstance();
+        $order = $payment->getOrder();
+        $order->save();
+
+        $amount = $order->getTotalDue();
+        if ($amount < $this->_minAmount) {
+            throw new PaymentException(new Phrase(__('Invalid order amount. Minimum amount: 0.50!')));
+        }
+
+        $holder = mb_substr(sprintf(
+            '%s %s',
+            $order->getBillingAddress()->getData('firstname'),
+            $order->getBillingAddress()->getData('lastname')
+        ), 0, 32);
+
+                
+
+        $amount = "0.50";
+        $cancel_url = "https://your-shop.com/payment-cancelled";
+        $country = "LT";
+        $currency = "EUR";
+        $description = "Purchase Description";
+        $order_id = "123";
+        $return_url = "https://your-shop.com/payment-complete";
+
+        $project_id = $this->getConfigData('cardinity_project_id');
+        $project_secret = $this->getConfigData('cardinity_project_secret');
+        $attributes = [
+            "amount" => $amount,
+            "currency" => $currency,
+            "country" => $country,
+            "order_id" => $order_id,
+            "description" => $description,
+            "project_id" => $project_id,
+            "cancel_url" => $cancel_url,
+            "return_url" => $return_url,
+        ];
+
+        ksort($attributes);
+
+        $message = '';
+        foreach($attributes as $key => $value) {
+            $message .= $key.$value;
+        }
+
+        $signature = hash_hmac('sha256', $message, $project_secret);
+        
+        //$script = 'document.forms["checkout"].submit()';
+        $script = '';
+        
+        echo "
+        <html>
+            <head>
+            <title>Request Example | Hosted Payment Page</title>
+            </head>
+            <body onload='$script'>
+            <form name='checkout' method='POST' action='https://checkout.cardinity.com'>
+                <button type=submit>Click Here</button>
+                <input type='hidden' name='amount' value='$amount' />
+                <input type='hidden' name='cancel_url' value='$cancel_url' />
+                <input type='hidden' name='country' value='$country' />
+                <input type='hidden' name='currency' value='$currency' />
+                <input type='hidden' name='description' value='$description' />
+                <input type='hidden' name='order_id' value='$order_id' />
+                <input type='hidden' name='project_id' value='$project_id' />
+                <input type='hidden' name='return_url' value='$return_url' />
+                <input type='hidden' name='signature' value='$signature' />
+            </form>
+            </body>
+        </html>";
+    
+        exit();
+        
+
+        /*$method = new Payment\Create([
+            'amount' => floatval($amount),
+            'currency' => $this->_storeManager->getStore()->getCurrentCurrency()->getCode(),
+            'settle' => true,
+            'order_id' => $order->getRealOrderId(),
+            'country' => $order->getBillingAddress()->getData('country_id'),
+            'payment_method' => Payment\Create::CARD,
+            'payment_instrument' => [
+                'pan' => $payment->_data['cc_number'],
+                'exp_year' => (int)$payment->_data['cc_exp_year'],
+                'exp_month' => (int)$payment->_data['cc_exp_month'],
+                'cvc' => $payment->_data['cc_cid'],
+                'holder' => $holder
+            ],
+        ]);
+
+        $result = $this->_call($method);*/
+
+
+
+
+        /*$authModel = $this->_getAuthModel();
         $authModel->cleanup();
 
         if ($result) {
@@ -159,8 +320,9 @@ class PaymentModel extends \Magento\Payment\Model\Method\Cc
             }
         } else {
             $authModel->setFailure(true);
-        }
+        }*/
     }
+
 
     /**
      * Finalize payment after 3-D security verification
@@ -169,9 +331,9 @@ class PaymentModel extends \Magento\Payment\Model\Method\Cc
      * @param string $pares payer authentication response received from ACS
      * @return boolean
      */
-    public function finalize($paymentId, $pares)
+    public function finalize($paymentId, $data, $isV2 = false)
     {
-        $method = new Payment\Finalize($paymentId, $pares);
+        $method = new Payment\Finalize($paymentId, $data, $isV2);
 
         try {
             $result = $this->_call($method);
@@ -179,11 +341,15 @@ class PaymentModel extends \Magento\Payment\Model\Method\Cc
             return false;
         } catch (\Exception $e) {
             $this->_log($e->getMessage());
-            $this->_setMessage(__('Unexpected error occurred. Please contact support.'), 'error');
+            $this->_setMessage(__('Exception occurred. ').$e->getMessage(), 'error');
+            return false;
         }
 
-        return isset($result) && $result && $result->isApproved();
+        return $result;
+        //return isset($result) && $result && $result->isApproved();
     }
+
+    
 
     /**
      * Check method for processing with base currency
@@ -218,6 +384,7 @@ class PaymentModel extends \Magento\Payment\Model\Method\Cc
                 throw new PaymentException(new Phrase(__('Request failed. Please contact support.')));
             }
         } catch (Exception\Runtime $e) {
+            $this->_log("####CardinityError");
             $this->_log($e->getMessage());
             throw new PaymentException(new Phrase(__('Internal error occurred. Please contact support.')));
         }
@@ -248,7 +415,7 @@ class PaymentModel extends \Magento\Payment\Model\Method\Cc
 
     private function _getAuthModel()
     {
-        return $this->_objectManager->create('Cardinity\Magento\Model\AuthModel');
+        return $this->_objectManager->create('Cardinity\Payment\Model\AuthModel');
     }
 
     private function _getOrderModel()

@@ -1,12 +1,17 @@
 <?php
 
-namespace Cardinity\Magento\Controller;
+namespace Cardinity\Payment\Controller;
 
-abstract class Payment extends \Magento\Framework\App\Action\Action
+
+use Magento\Framework\App\CsrfAwareActionInterface;
+use Magento\Framework\App\Request\InvalidRequestException;
+use Magento\Framework\App\RequestInterface;
+
+abstract class Payment extends \Magento\Framework\App\Action\Action implements CsrfAwareActionInterface
 {
     public function __construct(
         \Magento\Framework\App\Action\Context $context,
-        \Cardinity\Magento\Logger\Logger $logger,
+        \Cardinity\Payment\Logger\Logger $logger,
         \Magento\Framework\View\Result\PageFactory $pageFactory
     )
     {
@@ -20,6 +25,25 @@ abstract class Payment extends \Magento\Framework\App\Action\Action
         $this->_pageFactory = $pageFactory;
     }
 
+     /**
+     * @inheritDoc
+     */
+    public function createCsrfValidationException(
+        RequestInterface $request
+    ): ?InvalidRequestException {
+        return null;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function validateForCsrf(RequestInterface $request): ?bool
+    {
+        return true;
+    }
+
+    
+
     protected function _forceRedirect($url)
     {
         $this->_redirect($url, ['_secure' => true]);
@@ -32,12 +56,12 @@ abstract class Payment extends \Magento\Framework\App\Action\Action
 
     protected function _getAuthModel()
     {
-        return $this->_objectManager->create('Cardinity\Magento\Model\AuthModel');
+        return $this->_objectManager->create('Cardinity\Payment\Model\AuthModel');
     }
 
     protected function _getPaymentModel()
     {
-        return $this->_objectManager->create('Cardinity\Magento\Model\PaymentModel');
+        return $this->_objectManager->create('Cardinity\Payment\Model\PaymentModel');
     }
 
     protected function _setMessage($message, $type)

@@ -1,6 +1,6 @@
 <?php
 
-namespace Cardinity\Magento\Block;
+namespace Cardinity\Payment\Block;
 
 class AuthBlock extends \Magento\Framework\View\Element\Template
 {
@@ -16,6 +16,15 @@ class AuthBlock extends \Magento\Framework\View\Element\Template
 
         $this->_urlBuilder = $context->getUrlBuilder();
         $this->_objectManager = $objectManager;
+    }
+
+    public function getAuth3dsLevel()
+    {
+        if($this->_getAuthModel()->getThreeDSecureV2Needed() == true){
+            return "v2";
+        }elseif($this->_getAuthModel()->getThreeDSecureNeeded() == true){
+            return "v1";
+        }
     }
 
     public function getAuthUrl()
@@ -40,6 +49,6 @@ class AuthBlock extends \Magento\Framework\View\Element\Template
 
     private function _getAuthModel()
     {
-        return $this->_objectManager->create('Cardinity\Magento\Model\AuthModel');
+        return $this->_objectManager->create('Cardinity\Payment\Model\AuthModel');
     }
 }

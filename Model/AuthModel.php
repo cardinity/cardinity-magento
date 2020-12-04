@@ -1,6 +1,6 @@
 <?php
 
-namespace Cardinity\Magento\Model;
+namespace Cardinity\Payment\Model;
 
 class AuthModel
 {
@@ -91,6 +91,18 @@ class AuthModel
         return $this->_getSession()->getData('crd_3ds_needed');
     }
 
+
+    /* added for v2*/
+    public function setThreeDSecureV2Needed($needed)
+    {
+        $this->_getSession()->setData('crd_3dsv2_needed', $needed);
+    }
+
+    public function getThreeDSecureV2Needed()
+    {
+        return $this->_getSession()->getData('crd_3dsv2_needed');
+    }
+
     /**
      * Cleanup data
      */
@@ -102,8 +114,10 @@ class AuthModel
         $this->_getSession()->setData('crd_order_id', null);
         $this->_getSession()->setData('crd_real_order_id', null);
         $this->_getSession()->setData('crd_3ds_needed', null);
+        $this->_getSession()->setData('crd_3dsv2_needed', null);
         $this->_getSession()->setData('crd_success', null);
         $this->_getSession()->setData('crd_failure', null);
+        
     }
 
     private function _getSession()

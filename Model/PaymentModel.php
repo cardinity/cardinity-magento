@@ -99,8 +99,6 @@ class PaymentModel extends \Magento\Payment\Model\Method\Cc
         $stateObject->setStatus($orderModel::STATE_PENDING_PAYMENT);
         $stateObject->setIsNotified(false);
 
-        
-        
 
         $external = $this->getConfigData('external_enabled');
         $this->_log("External status ". $external);
@@ -113,7 +111,6 @@ class PaymentModel extends \Magento\Payment\Model\Method\Cc
         
         try {            
             $this->$executeFunction();
-            //$this->_makePayment();
         } catch (Exception $e) {
             $this->_log($e->getMessage());
             throw new PaymentException(new Phrase(__('Internal error occurred. Please contact support.')));
@@ -292,13 +289,6 @@ class PaymentModel extends \Magento\Payment\Model\Method\Cc
         $externalModel->setSecret($project_secret);
 
         $this->_log("External Model Prepd");
-
-
-        
-        //$store = $this->_storeManager->getStore();
-        //$this->getResponse()->setRedirect('/' . $store->getCode() . '/cardinity/payment/external');
-
-        //$this->_forceRedirect('cardinity/payment/external');
 
     
     }

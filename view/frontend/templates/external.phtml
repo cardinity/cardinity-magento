@@ -4,9 +4,9 @@
  */
 ?>
 <h3>Redirecting to external hosted gateway. If your browser dont redirect you in 5 seconds. Press <?php echo __('Continue') ?></h3>
-<form class="form cardinity-external-form" name="ExternalForm" method="POST" action="https://checkout.cardinity.com">
+<form class="form cardinity-external-form" name="externalForm" method="POST" action="https://checkout.cardinity.com">
     <h3>Hosted Payment</h3>
-    <button type=submit>Click Here</button>
+    <button type="submit" class="action primary"><?php echo __('Continue') ?></button>
     <input type="hidden" name="amount" value="<?php echo $block->getAmount(); ?>" />
     <input type="hidden" name="cancel_url" value="<?php echo $block->getCancelUrl(); ?>" />
     <input type="hidden" name="country" value="<?php echo $block->getCountry(); ?>" />
@@ -17,10 +17,9 @@
     <input type="hidden" name="return_url" value="<?php echo $block->getReturnUrl(); ?>" />
     <input type="hidden" name="signature" value="<?php echo $block->getSignature(); ?>" />
 </form>
-<?php echo $block->getExternalUrl()?>
 
 <script type="text/javascript">
-    window.onload = function() {
-        //window.setTimeout(document.ExternalForm.submit.bind(document.ExternalForm), 2000);
+    window.onload=function(){ 
+        window.setTimeout(function() { document.externalForm.submit(); }, 4000);
     };
 </script>

@@ -16,22 +16,8 @@
             <!--/ko-->
         </div>
 
-        <form 
-          class="form cardinity-external-form" 
-          method="POST" 
-          action="https://checkout.cardinity.com" 
-          data-bind="attr: {'id': getCode() + '-form'}">
-            <h3>Hosted Payment</h3>
-            <button type=submit>Click Here</button>
-            <input type="text" name="amount" data-bind="attr: {'value': getValue['amount']}" />
-            <input type="hidden" name="cancel_url" value="{cancel_url}" />
-            <input type="hidden" name="country" value="{country}" />
-            <input type="hidden" name="currency" value="{currency}" />
-            <input type="hidden" name="description" value="{description}" />
-            <input type="hidden" name="order_id" value="{order_id}" />
-            <input type="hidden" name="project_id" value="{project_id}" />
-            <input type="hidden" name="return_url" value="{return_url}" />
-            <input type="hidden" name="signature" value="{signature}" />
+        <form class="form" data-bind="attr: {'id': getCode() + '-form'}">
+            <!-- ko template: 'Magento_Payment/payment/cc-form' --><!-- /ko -->
         </form>
 
         <div class="checkout-agreements-block">

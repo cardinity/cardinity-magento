@@ -294,41 +294,13 @@ class PaymentModel extends \Magento\Payment\Model\Method\Cc
         $this->_log("External Model Prepd");
 
 
-
-        $store = $this->_storeManager->getStore();
-        $this->getResponse()->setRedirect('/' . $store->getCode() . '/cardinity/payment/external');
+        
+        //$store = $this->_storeManager->getStore();
+        //$this->getResponse()->setRedirect('/' . $store->getCode() . '/cardinity/payment/external');
 
         //$this->_forceRedirect('cardinity/payment/external');
 
-        
-
-        //$script = 'document.forms["checkout"].submit()';
-        /*$script = '';
-        
-        echo "
-        <html>
-            <head>
-            <title>Request Example | Hosted Payment Page</title>
-            </head>
-            <body onload='$script'>
-            <form name='checkout' method='POST' action='https://checkout.cardinity.com'>
-                <button type=submit>Click Here</button>
-                <input type='hidden' name='amount' value='$amount' />
-                <input type='hidden' name='cancel_url' value='$cancel_url' />
-                <input type='hidden' name='country' value='$country' />
-                <input type='hidden' name='currency' value='$currency' />
-                <input type='hidden' name='description' value='$description' />
-                <input type='hidden' name='order_id' value='$order_id' />
-                <input type='hidden' name='project_id' value='$project_id' />
-                <input type='hidden' name='return_url' value='$return_url' />
-                <input type='hidden' name='signature' value='$signature' />
-            </form>
-            </body>
-        </html>";
     
-        exit();*/
-        
-
     }
 
 

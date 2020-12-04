@@ -42,7 +42,7 @@ class Callbackexternal extends \Cardinity\Payment\Controller\Payment
                 $this->_log(print_r($postData, true));
                 
                 if($postData['status'] == "approved"){
-                    $this->_log('Payment successful ID:', $order->getRealOrderId());
+                    $this->_log('Payment successful ID:'. $postData['id'], $order->getRealOrderId());
     
                     $externalModel->setPaymentId($postData['id']);
                     $externalModel->setSuccess(true);

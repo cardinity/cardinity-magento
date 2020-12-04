@@ -134,7 +134,7 @@ abstract class Payment extends \Magento\Framework\App\Action\Action implements C
 
             $this->_log("in ".__METHOD__." auth model :".$authModel->getOrderId() );
         }else{
-            $externalModel = $this->_getAuthModel();
+            $externalModel = $this->_getExternalModel();
             $order = $orderModel->load($externalModel->getOrderId());
 
             $this->_log("in ".__METHOD__." external model :".$externalModel->getOrderId() );

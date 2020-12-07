@@ -10,13 +10,26 @@ define(
     function ($, url, Component) {
         'use strict';
 
-        //TODO make decision here to switch which view to load
+        
+        /*console.log("TEST Method renderer");
+        console.log(window.checkoutConfig.customData);
+        console.log(window.checkoutConfig.externalEnabled);
+        console.log("TEST END");*/
+
+        var displayTemplte;
+
+        if(window.checkoutConfig.externalEnabled == 1){
+            displayTemplte = 'Cardinity_Payment/payment/cardinity-external-form';
+        }else{
+            displayTemplte = 'Cardinity_Payment/payment/cardinity-form';
+        }
+        
 
         return Component.extend({
             redirectAfterPlaceOrder: false,
 
             defaults: {
-                template: 'Cardinity_Payment/payment/cardinity-external-form'
+                template: displayTemplte
             },
 
             getCode: function () {

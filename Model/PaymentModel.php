@@ -77,6 +77,20 @@ class PaymentModel extends \Magento\Payment\Model\Method\Cc
     }
 
     /**
+     * Validate
+     * override if external 
+     */
+    public function validate(){
+        $external = $this->getConfigData('external_enabled');
+        
+        if($external == 1){
+            return $this;
+        }else{            
+            parent::validate();
+        }
+    }
+
+    /**
      * Method that will be executed instead of authorize or capture
      * if flag isInitializeNeeded set to true
      *

@@ -12,6 +12,7 @@
         <arguments>
             <argument name="configProviders" xsi:type="array">
                 <item name="cardinity_config_provider" xsi:type="object">Cardinity\Payment\Model\ConfigProvider</item>
+                <item name="checkout_config_custom_data" xsi:type="object">Cardinity\Payment\Model\CustomConfigProvider</item>
             </argument>
         </arguments>
     </type>

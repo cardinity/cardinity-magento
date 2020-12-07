@@ -6,7 +6,7 @@
     "license": "MIT",
     "homepage": "https://cardinity.com",
     "require": {
-        "cardinity/cardinity-sdk-php": "~2.1"
+        "cardinity/cardinity-sdk-php": "~3.0"
     },
     "autoload": {
         "files": [

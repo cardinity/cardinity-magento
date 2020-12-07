@@ -10,12 +10,6 @@ define(
     function ($, url, Component) {
         'use strict';
 
-        
-        /*console.log("TEST Method renderer");
-        console.log(window.checkoutConfig.customData);
-        console.log(window.checkoutConfig.externalEnabled);
-        console.log("TEST END");*/
-
         var displayTemplte;
 
         if(window.checkoutConfig.externalEnabled == 1){

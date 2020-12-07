@@ -10,6 +10,7 @@ class CustomConfigProvider implements ConfigProviderInterface
     {
         $this->_objectManager = $objectManager;        
     }
+    
     public function getConfig()
     {
         $config = [];

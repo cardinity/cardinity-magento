@@ -7,7 +7,7 @@ class ExternalBlock extends \Magento\Framework\View\Element\Template
     public function __construct(
         \Magento\Framework\View\Element\Template\Context $context,
         \Magento\Framework\ObjectManagerInterface $objectManager,
-        //\Psr\Log\LoggerInterface $logger,
+
         array $data = []
     ) {
         parent::__construct(
@@ -17,21 +17,17 @@ class ExternalBlock extends \Magento\Framework\View\Element\Template
 
         $this->_urlBuilder = $context->getUrlBuilder();
         $this->_objectManager = $objectManager;
-        //$this->_logger = $logger;
+
     }
 
-  
-    
+
+
     public function getExternalUrl(){
         return "https://checkout.cardinity.com";
     }
 
     public function getAmount()
     {
-
-        //$this->_logger->info('external model from Block.php');
-        //$this->_logger->info(print_r($this->_getExternalModel()->dump(), true));        
-        
         return $this->_getExternalModel()->getAmount();
     }
 
@@ -76,7 +72,7 @@ class ExternalBlock extends \Magento\Framework\View\Element\Template
         return $this->_getExternalModel()->getSignature();
     }
 
-    
+
 
     public function getRealOrderId()
     {

@@ -9,7 +9,7 @@ class ExternalModel
         \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig
     )
     {
-       
+
         $this->_checkoutSession = $checkoutSession;
     }
 
@@ -63,7 +63,7 @@ class ExternalModel
     {
         return $this->_getSession()->getData('crd_external_desc');
     }
-    
+
     public function setProjectId($project_id)
     {
         $this->_getSession()->setData('crd_external_project_id', $project_id);
@@ -159,7 +159,7 @@ class ExternalModel
         return $this->_getSession()->getData('crd_failure');
     }
 
-    
+
 
     /**
      * Cleanup data
@@ -177,17 +177,16 @@ class ExternalModel
         $this->_getSession()->setData('crd_external_secret', null);
 
 
-        
+
         $this->_getSession()->setData('crd_payment_id', null);
         $this->_getSession()->setData('crd_order_id', null);
         $this->_getSession()->setData('crd_real_order_id', null);
         $this->_getSession()->setData('crd_success', null);
         $this->_getSession()->setData('crd_failure', null);
-        
+
     }
 
     public function dump(){
-        //$this->_getSession()->setData('crd_my_test', "TESTSTSTSTS");
         return $this->_getSession()->getData();
     }
 

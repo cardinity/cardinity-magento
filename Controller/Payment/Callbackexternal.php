@@ -21,11 +21,11 @@ class Callbackexternal extends \Cardinity\Payment\Controller\Payment
             $orderModel = $this->_getOrderModel();
             $order = $orderModel->load($externalModel->getOrderId());
 
-            
+
             $message = '';
 
-            $postData = $_POST;//$this->getRequest()->getPost();
-            
+            $postData = $_POST;
+
             ksort($postData);
 
             foreach($postData as $key => $value) {
@@ -40,36 +40,35 @@ class Callbackexternal extends \Cardinity\Payment\Controller\Payment
                 $this->_log('Post data valid');
 
                 $this->_log(print_r($postData, true));
-                
+
                 if($postData['status'] == "approved"){
                     $this->_log('Payment successful ID:'. $postData['id'], $order->getRealOrderId());
-    
+
                     $externalModel->setPaymentId($postData['id']);
                     $externalModel->setSuccess(true);
 
-                    
+
                     $this->_success($external = true);
-    
-                    $this->_forceRedirect('checkout/onepage/success');                       
-                }else{                
+
+                    $this->_forceRedirect('checkout/onepage/success');
+                }else{
                     $this->_log('Payment failed', $order->getRealOrderId());
-    
+
                     $externalModel->setFailure(true);
                     $this->_cancel();
-    
+
                     $this->_forceRedirect('checkout/cart');
                 }
             } else {
                 $this->_log('Post data invalid');
                 $this->_log('Payment failed', $order->getRealOrderId());
-    
+
                 $externalModel->setFailure(true);
                 $this->_cancel();
 
                 $this->_forceRedirect('checkout/cart');
             }
         }
-        
+
     }
 }
-

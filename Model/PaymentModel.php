@@ -78,14 +78,14 @@ class PaymentModel extends \Magento\Payment\Model\Method\Cc
 
     /**
      * Validate
-     * override if external 
+     * override if external
      */
     public function validate(){
         $external = $this->getConfigData('external_enabled');
-        
+
         if($external == 1){
             return $this;
-        }else{            
+        }else{
             parent::validate();
         }
     }
@@ -122,8 +122,8 @@ class PaymentModel extends \Magento\Payment\Model\Method\Cc
         }else{
             $executeFunction = "_makePayment";
         }
-        
-        try {            
+
+        try {
             $this->$executeFunction();
         } catch (Exception $e) {
             $this->_log($e->getMessage());
@@ -171,7 +171,7 @@ class PaymentModel extends \Magento\Payment\Model\Method\Cc
                 'holder' => $holder
             ],
             'threeds2_data' =>  [
-                "notification_url" => $this->_storeManager->getStore()->getUrl('cardinity/payment/callbackv2', ['_secure' => true]), 
+                "notification_url" => $this->_storeManager->getStore()->getUrl('cardinity/payment/callbackv2', ['_secure' => true]),
                 "browser_info" => [
                     "accept_header" => "text/html",
                     "browser_language" => "en-US",
@@ -199,7 +199,7 @@ class PaymentModel extends \Magento\Payment\Model\Method\Cc
             if ($result->isApproved()) {
                 $authModel->setSuccess(true);
             } elseif ($result->isPending()) {
-                
+
                 if($result->isThreedsV2() && !$result->isThreedsV1()){
 
                     //3d Secure v2
@@ -208,19 +208,19 @@ class PaymentModel extends \Magento\Payment\Model\Method\Cc
                     $authModel->setUrl($authData->getAcsUrl());
                     $authModel->setData($authData->getCreq());
 
-                }else{            
+                }else{
 
                     //3d Secure v1
                     $authData = $result->getAuthorizationInformation();
                     $authModel->setThreeDSecureNeeded(true);
                     $authModel->setUrl($authData->getUrl());
-                    $authModel->setData($authData->getData());        
+                    $authModel->setData($authData->getData());
                 }
             }
         } else {
             $authModel->setFailure(true);
         }
-    }    
+    }
 
     /**
      * Issue External payment request
@@ -245,8 +245,8 @@ class PaymentModel extends \Magento\Payment\Model\Method\Cc
         }
 
 
-       
-        $amount =  number_format(floatval($amount), 2); 
+
+        $amount =  number_format(floatval($amount), 2);
         $cancel_url = $this->_storeManager->getStore()->getUrl('cardinity/payment/callbackexternal', ['_secure' => true]);
         $country = $order->getBillingAddress()->getData('country_id');
         $currency = $this->_storeManager->getStore()->getCurrentCurrency()->getCode();
@@ -276,10 +276,10 @@ class PaymentModel extends \Magento\Payment\Model\Method\Cc
         }
 
         $signature = hash_hmac('sha256', $message, $project_secret);
-        
+
         $this->_log("Preparing external payement");
 
-        
+
 
         $externalModel = $this->_getExternalModel();
         $externalModel->cleanup();
@@ -287,9 +287,8 @@ class PaymentModel extends \Magento\Payment\Model\Method\Cc
 
         $externalModel->setOrderId($order->getId());
         $externalModel->setRealOrderId($order->getRealOrderId());
-        //$externalModel->setPaymentId($result->getId());
         
- 
+
         $externalModel->setAmount($amount);
         $externalModel->setCancelUrl($cancel_url);
         $externalModel->setCountry($country);
@@ -299,12 +298,12 @@ class PaymentModel extends \Magento\Payment\Model\Method\Cc
         $externalModel->setReturnUrl($return_url);
         $externalModel->setSignature($signature);
 
-        //TODO: avoid putting secret on session
+
         $externalModel->setSecret($project_secret);
 
         $this->_log("External Model Prepd");
 
-    
+
     }
 
 
@@ -333,7 +332,7 @@ class PaymentModel extends \Magento\Payment\Model\Method\Cc
         //return isset($result) && $result && $result->isApproved();
     }
 
-    
+
 
     /**
      * Check method for processing with base currency
@@ -408,7 +407,7 @@ class PaymentModel extends \Magento\Payment\Model\Method\Cc
         return $this->_objectManager->create('Cardinity\Payment\Model\ExternalModel');
     }
 
-    
+
 
     private function _getOrderModel()
     {

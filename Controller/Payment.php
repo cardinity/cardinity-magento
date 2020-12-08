@@ -9,6 +9,8 @@ use Magento\Framework\App\RequestInterface;
 
 abstract class Payment extends \Magento\Framework\App\Action\Action implements CsrfAwareActionInterface
 {
+    protected $_configData;
+
     public function __construct(
         \Magento\Framework\App\Action\Context $context,
         \Cardinity\Payment\Logger\Logger $logger,
@@ -23,6 +25,9 @@ abstract class Payment extends \Magento\Framework\App\Action\Action implements C
         $this->_messageManager = $context->getMessageManager();
         $this->_logger = $logger;
         $this->_pageFactory = $pageFactory;
+
+        
+        $this->_configData = $this->_objectManager->get('Cardinity\Payment\Helper\Data');
     }
 
      /**
@@ -44,6 +49,7 @@ abstract class Payment extends \Magento\Framework\App\Action\Action implements C
 
     
 
+
     protected function _forceRedirect($url)
     {
         $this->_redirect($url, ['_secure' => true]);
@@ -57,6 +63,11 @@ abstract class Payment extends \Magento\Framework\App\Action\Action implements C
     protected function _getAuthModel()
     {
         return $this->_objectManager->create('Cardinity\Payment\Model\AuthModel');
+    }
+
+    protected function _getExternalModel()
+    {
+        return $this->_objectManager->create('Cardinity\Payment\Model\ExternalModel');
     }
 
     protected function _getPaymentModel()
@@ -109,15 +120,33 @@ abstract class Payment extends \Magento\Framework\App\Action\Action implements C
         }
     }
 
-    protected function _success()
+    protected function _success($external = false)
     {
         $this->_log('called ' . __METHOD__);
 
-        $authModel = $this->_getAuthModel();
+        
         $orderModel = $this->_getOrderModel();
 
-        $order = $orderModel->load($authModel->getOrderId());
+        //if internal
+        if($external == false){
+            $authModel = $this->_getAuthModel();
+            $order = $orderModel->load($authModel->getOrderId());
 
+            $this->_log("in ".__METHOD__." auth model :".$authModel->getOrderId() );
+        }else{
+            $externalModel = $this->_getExternalModel();
+            $order = $orderModel->load($externalModel->getOrderId());
+
+            $this->_log("in ".__METHOD__." external model :".$externalModel->getOrderId() );
+        }
+        
+
+        $this->_log("in ".__METHOD__." order state :".$order->getState() );
+        $this->_log("in ".__METHOD__." order id :".$order->getId() );
+        $this->_log("in ".__METHOD__." order :".$orderModel::STATE_PENDING_PAYMENT );
+        
+
+        
         if ($order && $order->getId() && $order->getState() == $orderModel::STATE_PENDING_PAYMENT) {
             try {
                 $order->setState($orderModel::STATE_PROCESSING);
@@ -131,12 +160,16 @@ abstract class Payment extends \Magento\Framework\App\Action\Action implements C
 
                 return true;
             } catch (\Exception $exception) {
+                $this->_log($exception->getMessage());
                 return false;
             }
+        }else{
+            $this->_log('success mismatch ');
         }
         return false;
     }
 
+    
     protected function _createInvoice($order)
     {
         if (!$order->canInvoice()) {

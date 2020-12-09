@@ -33,6 +33,10 @@
                 <allowspecific>0</allowspecific>
                 <cardinity_key backend_model="adminhtml/system_config_backend_encrypted" />
                 <cardinity_secret backend_model="adminhtml/system_config_backend_encrypted" />
+
+
+                <cardinity_project_id backend_model="adminhtml/system_config_backend_encrypted" />
+                <cardinity_project_secret backend_model="adminhtml/system_config_backend_encrypted" />
             </cardinity>
         </payment>
     </default>

@@ -1,0 +1,26 @@
+<?php
+/**
+ * @var \Cardinity\Payments\Block\External $block
+ */
+?>
+<h3>Redirecting to external hosted gateway. If your browser dont redirect you in 5 seconds. Press <?php echo __('Continue') ?></h3>
+<form class="form cardinity-external-form" name="externalForm" method="POST" action="https://checkout.cardinity.com">
+    <h3>Hosted Payment</h3>
+    <input type="hidden" name="amount" value="<?php echo $this->getAmount(); ?>" />
+    <input type="hidden" name="cancel_url" value="<?php echo $this->getCancelUrl(); ?>" />
+    <input type="hidden" name="country" value="<?php echo $this->getCountry(); ?>" />
+    <input type="hidden" name="currency" value="<?php echo $this->getCurrency(); ?>" />
+    <input type="hidden" name="description" value="<?php echo $this->getDescription(); ?>" />
+    <input type="hidden" name="order_id" value="<?php echo $this->getRealOrderId(); ?>" />
+    <input type="hidden" name="project_id" value="<?php echo $this->getProjectId(); ?>" />
+    <input type="hidden" name="return_url" value="<?php echo $this->getReturnUrl(); ?>" />
+    <input type="hidden" name="signature" value="<?php echo $this->getSignature(); ?>" />
+
+    <button type="submit" class="action primary"><?php echo __('Continue') ?></button>
+</form>
+
+<script type="text/javascript">
+    window.onload=function(){ 
+        window.setTimeout(function() { document.externalForm.submit(); }, 4000);
+    };
+</script>

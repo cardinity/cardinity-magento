@@ -11,12 +11,15 @@ class Cardinity_Payments_Model_Payment extends Mage_Payment_Model_Method_Cc
 {
 
     protected $_code = 'cardinity';
+    protected $_isSetToExternal = false;
 
     protected $_canUseCheckout = true;
     protected $_canUseInternal = false;
     protected $_canUseForMultishipping = false;
     protected $_canSaveCc = false;
     protected $_isInitializeNeeded  = true;
+
+    
 
     /**
      * @var $_client Cardinity\Client SDK client
@@ -31,7 +34,32 @@ class Cardinity_Payments_Model_Payment extends Mage_Payment_Model_Method_Cc
         $this->_client = Client::create([
             'consumerKey' => $this->getConfigData('cardinity_key'),
             'consumerSecret' => $this->getConfigData('cardinity_secret'),
-            ]);
+        ]);
+
+        $external = $this->getConfigData('external_enabled');
+
+        if($external == 1){
+            $this->_isSetToExternal = true;
+
+            $this->_formBlockType = 'payment/form';
+            $this->_infoBlockType = 'payment/info';
+        }
+            
+        
+    }
+
+    /**
+     * Validate
+     * override if external
+     */
+    public function validate(){
+        //$external = $this->getConfigData('external_enabled');
+
+        if($this->_isSetToExternal){
+            return $this;
+        }else{
+            parent::validate();
+        }
     }
 
     /**
@@ -63,9 +91,22 @@ class Cardinity_Payments_Model_Payment extends Mage_Payment_Model_Method_Cc
         $stateObject->setIsNotified(false);
         $this->_log('order status changed to pending payment');
 
+
+        //determine if external is to be used
+        $external = $this->getConfigData('external_enabled');
+        $this->_log("External status ". $external);
+
+        if($this->_isSetToExternal){
+            $executeFunction = "_makeExternalPayment";
+        }else{
+            $executeFunction = "_makePayment";
+        }
+
+
+
         // Make initial payment attempt
         try{
-            $this->_makePayment();
+            $this->$executeFunction();
         }catch (Exception $e){
             $this->_log($e);
             Mage::throwException(Mage::helper('payment')->__('Internal error occurred. Please contact support.'));
@@ -83,8 +124,13 @@ class Cardinity_Payments_Model_Payment extends Mage_Payment_Model_Method_Cc
     {
         $this->_log('called ' . __METHOD__);
         $authModel = Mage::getModel('cardinity/auth');
+        $externalModel = Mage::getModel('cardinity/external');
 
-        if ($authModel && $authModel->getSuccess()) {
+        if($externalModel && $externalModel->getExternalRequired()){
+            $this->_log('redirecting buyer to external page');
+            $redirectUrl = Mage::getModel('core/url')->getUrl("cardinity/payment/external", array('_secure'=>true));
+        }
+        else if ($authModel && $authModel->getSuccess()) {
             $this->_log('redirecting buyer to success page');
             $redirectUrl = Mage::getModel('core/url')->getUrl("cardinity/payment/success", array('_secure'=>true));
         }
@@ -99,6 +145,92 @@ class Cardinity_Payments_Model_Payment extends Mage_Payment_Model_Method_Cc
 
         return $redirectUrl;
     }
+
+    protected function _makeExternalPayment(){
+
+        $this->_log('called ' . __METHOD__);
+
+        // Process payment
+        $payment = $this->getInfoInstance();
+        $order = $payment->getOrder();
+        $amount = $order->getBaseTotalDue();
+
+        // Validate minimum sale amount
+        if ($amount < 0.5) {
+            Mage::throwException(Mage::helper('payment')->__('Invalid order amount. Minimum amount: 0.50!'));
+        }
+
+        
+        $amount = $order->getTotalDue();
+        if ($amount < $this->_minAmount) {
+            throw new PaymentException(new Phrase(__('Invalid order amount. Minimum amount: 0.50!')));
+        }
+
+
+
+        $amount =  number_format(floatval($amount), 2);
+        
+        $cancel_url =  Mage::getUrl('cardinity/payment/callbackext', array('_secure' => true));  // $this->_storeManager->getStore()->getUrl('cardinity/payment/callbackexternal', ['_secure' => true]);
+        $return_url = Mage::getUrl('cardinity/payment/callbackext', array('_secure' => true));// $this->_storeManager->getStore()->getUrl('cardinity/payment/callbackexternal', ['_secure' => true]);
+
+
+        $country = $order->getBillingAddress()->getData('country_id');
+        $currency =  Mage::app()->getStore()->getBaseCurrencyCode();
+        $description = $order->getId();
+        $order_id = $order->getRealOrderId();
+        
+        $project_id = $this->getConfigData('cardinity_project_id');
+        $project_secret = $this->getConfigData('cardinity_project_secret');
+
+        $attributes = [
+            "amount" => $amount,
+            "currency" => $currency,
+            "country" => $country,
+            "order_id" => $order_id,
+            "description" => $description,
+            "project_id" => $project_id,
+            "cancel_url" => $cancel_url,
+            "return_url" => $return_url,
+        ];
+
+        ksort($attributes);
+
+        $message = '';
+        foreach($attributes as $key => $value) {
+            $message .= $key.$value;
+        }
+
+        $signature = hash_hmac('sha256', $message, $project_secret);
+
+        $this->_log("Preparing external payement");
+
+
+
+        $externalModel = Mage::getModel('cardinity/external');
+        $externalModel->cleanup();
+
+
+        $externalModel->setOrderId($order->getId());
+        $externalModel->setRealOrderId($order->getRealOrderId());
+        
+
+        $externalModel->setAmount($amount);
+        $externalModel->setCancelUrl($cancel_url);
+        $externalModel->setCountry($country);
+        $externalModel->setCurrency($currency);
+        $externalModel->setDescription($description);
+        $externalModel->setProjectId($project_id);
+        $externalModel->setReturnUrl($return_url);
+        $externalModel->setSignature($signature);
+        $externalModel->setExternalRequired(1);
+
+        $externalModel->setSecret($project_secret);
+
+        $this->_log("External Model Prepd");
+
+
+    }
+
 
     protected function _makePayment(){
 

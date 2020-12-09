@@ -1,0 +1,9 @@
+<form name="ThreeDForm" method="POST" action="<?php echo $this->getUrl()?>">
+   <button type=submit><?php echo $this->__('Continue')?></button>
+   <input type="hidden" name="PaReq" value="<?php echo $this->getData()?>" />
+   <input type="hidden" name="TermUrl" value="<?php echo $this->getCallbackUrl()?>" />
+   <input type="hidden" name="MD" value="<?php echo $this->getRealOrderId()?>" />
+</form>
+<script type="text/javascript">
+    document.ThreeDForm.submit();
+</script>

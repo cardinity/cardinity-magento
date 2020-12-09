@@ -1,0 +1,6 @@
+{
+    "require": {
+        "cardinity/cardinity-sdk-php": "~2.1",
+        "monolog/monolog": "~1.13"
+    }
+}

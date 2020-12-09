@@ -1,0 +1,11 @@
+<config>
+    <modules>
+        <Cardinity_Payments>
+            <active>true</active>
+            <codePool>community</codePool>
+            <depends>
+                <Mage_Payment />
+            </depends>
+        </Cardinity_Payments>
+    </modules>
+</config>

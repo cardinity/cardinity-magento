@@ -1,0 +1,59 @@
+<?xml version="1.0"?>
+<config>
+    <modules>
+        <Cardinity_Payments>
+            <version>2.1.0</version>
+        </Cardinity_Payments>
+    </modules>
+    <global>
+        <models>
+            <cardinity>
+                <class>Cardinity_Payments_Model</class>
+            </cardinity>
+        </models>
+        <helpers>
+            <cardinity>
+                <class>Cardinity_Payments_Helper</class>
+            </cardinity>
+        </helpers>
+        <blocks>
+            <cardinity>
+                <class>Cardinity_Payments_Block</class>
+            </cardinity>
+        </blocks>
+    </global>
+    <default>
+        <payment>
+            <cardinity>
+                <active>0</active>
+                <title>Credit Card</title>
+                <model>cardinity/payment</model>
+                <payment_action>sale</payment_action>
+                <cctypes>VI,MC</cctypes>
+                <allowspecific>0</allowspecific>
+                <cardinity_key backend_model="adminhtml/system_config_backend_encrypted" />
+                <cardinity_secret backend_model="adminhtml/system_config_backend_encrypted" />
+            </cardinity>
+        </payment>
+    </default>
+    <frontend>
+        <routers>
+            <cardinity>
+                <use>standard</use>
+                <args>
+                    <module>Cardinity_Payments</module>
+                    <frontName>cardinity</frontName>
+                </args>
+            </cardinity>
+        </routers>
+        <translate>
+            <modules>
+                <Cardinity_Payments>
+                    <files>
+                        <default>Cardinity_Payments.csv</default>
+                    </files>
+                </Cardinity_Payments>
+            </modules>
+        </translate>
+    </frontend>
+</config>

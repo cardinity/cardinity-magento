@@ -1,0 +1,14 @@
+# IntelliJ project files
+.idea
+*.iml
+
+# VSCode project files
+.vscode
+
+# Cardinity PHP SDK
+/app/code/community/Cardinity/Payments/composer.lock
+/app/code/community/Cardinity/Payments/vendor/
+
+# Magento specific files
+package.xml
+

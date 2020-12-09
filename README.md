@@ -8,6 +8,8 @@ If you are using Magento 2 refer to the master branch
 * Magento Community Edition v1.9
 
 ## How to install
+Keep backup of your system first.
+
 Merge contents of this in your Magento web root folder, Cardinity folder should be at app/code/community/Cardinity
 
 Run composer install in /app/code/community/Cardinity/Payments/ to generate the vendor files

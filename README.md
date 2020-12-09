@@ -14,7 +14,7 @@ Merge contents of this in your Magento web root folder, Cardinity folder should 
 [https://github.com/cardinity/cardinity-magento/releases](https://github.com/cardinity/cardinity-magento/releases)
 
 ## Screenshots
-![Admin Page](https://github.com/cardinity/cardinity-magento/raw/1.9/admin.jpg)
+![Admin Page](https://github.com/cardinity/cardinity-magento/raw/1.9.x/admin.jpg)
 
 ## About
 ## How to Apply

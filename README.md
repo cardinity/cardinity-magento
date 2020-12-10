@@ -31,14 +31,14 @@ We operate not only as a Payment Gateway but also as an Acquiring Bank. With ove
 Register directly at our wesbsite [https://cardinity.com/sign-up](https://cardinity.com/sign-up).
 
 ## Features
-• Fast application and boarding procedure.
-• Global payments. Accept payments in major currencies with all main credit and debit cards from customers all around the world.
-• Recurring billing. Offer subscriptions or memberships, and your customers will be charged automatically.
-• One-click payments. Let your customers purchase with a single click.
-• Mobile payments. Purchases made anywhere on any mobile device.
-• A payment gateway and a free merchant account.
-• Ensured security with our enhanced protection measures.
-• Simple and transparent pricing model. Pay only per transaction and get all the features for free.
+* Fast application and boarding procedure.
+* Global payments. Accept payments in major currencies with all main credit and debit cards from customers all around the world.
+* Recurring billing. Offer subscriptions or memberships, and your customers will be charged automatically.
+* One-click payments. Let your customers purchase with a single click.
+* Mobile payments. Purchases made anywhere on any mobile device.
+* A payment gateway and a free merchant account.
+* Ensured security with our enhanced protection measures.
+* Simple and transparent pricing model. Pay only per transaction and get all the features for free.
 
 ## Keywords
 payment gateway, credit card payment, online payment, credit card processing, online payment gateway.

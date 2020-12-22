@@ -7,6 +7,9 @@ use Magento\Framework\App\CsrfAwareActionInterface;
 use Magento\Framework\App\Request\InvalidRequestException;
 use Magento\Framework\App\RequestInterface;
 
+
+use Magento\Framework\DB\Transaction;
+
 abstract class Payment extends \Magento\Framework\App\Action\Action implements CsrfAwareActionInterface
 {
     protected $_configData;
@@ -14,7 +17,8 @@ abstract class Payment extends \Magento\Framework\App\Action\Action implements C
     public function __construct(
         \Magento\Framework\App\Action\Context $context,
         \Cardinity\Payment\Logger\Logger $logger,
-        \Magento\Framework\View\Result\PageFactory $pageFactory
+        \Magento\Framework\View\Result\PageFactory $pageFactory,
+        Transaction $transaction   
     )
     {
         parent::__construct(
@@ -25,6 +29,8 @@ abstract class Payment extends \Magento\Framework\App\Action\Action implements C
         $this->_messageManager = $context->getMessageManager();
         $this->_logger = $logger;
         $this->_pageFactory = $pageFactory;
+
+        $this->_transaction = $transaction;
 
         
         $this->_configData = $this->_objectManager->get('Cardinity\Payment\Helper\Data');
@@ -172,6 +178,8 @@ abstract class Payment extends \Magento\Framework\App\Action\Action implements C
     
     protected function _createInvoice($order)
     {
+        $this->_log('called ' . __METHOD__);
+
         if (!$order->canInvoice()) {
             return false;
         }
@@ -182,10 +190,27 @@ abstract class Payment extends \Magento\Framework\App\Action\Action implements C
             if ($invoice->canCapture()) {
                 $invoice->capture();
             }
+
+            $invoice->getOrder()->setIsInProcess(true);
+            $invoice->pay();  
             $invoice->save();
+
             $order->addRelatedObject($invoice);
 
-            $this->_log('Invoice created', $order->getRealOrderId());
+            // Create the transaction
+            $transactionSave = $this->_transaction
+            ->addObject($invoice)
+            ->addObject($order);
+            $transactionSave->save();
+            
+            $order->save();  
+
+            // Save the invoice
+            $this->invoiceRepository->save($invoice);
+
+            $this->_log('Order created', $order->getRealOrderId());
+            $this->_log('Invoice created', print_r($invoice, true));
+            $this->_log('Transaction created maybe', print_r($transactionSave, true));
 
             return true;
         } catch (\Exception $exception) {

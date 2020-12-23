@@ -7,6 +7,10 @@ use Magento\Framework\App\CsrfAwareActionInterface;
 use Magento\Framework\App\Request\InvalidRequestException;
 use Magento\Framework\App\RequestInterface;
 
+
+use Magento\Sales\Api\InvoiceRepositoryInterface;
+use Magento\Framework\DB\Transaction;
+
 abstract class Payment extends \Magento\Framework\App\Action\Action implements CsrfAwareActionInterface
 {
     protected $_configData;
@@ -14,7 +18,11 @@ abstract class Payment extends \Magento\Framework\App\Action\Action implements C
     public function __construct(
         \Magento\Framework\App\Action\Context $context,
         \Cardinity\Payment\Logger\Logger $logger,
-        \Magento\Framework\View\Result\PageFactory $pageFactory
+        \Magento\Framework\View\Result\PageFactory $pageFactory,
+
+        \Magento\Sales\Model\Order\Payment\Transaction\BuilderInterface $transactionBuilder,
+        InvoiceRepositoryInterface $invoiceRepository,
+        Transaction $transaction   
     )
     {
         parent::__construct(
@@ -25,6 +33,11 @@ abstract class Payment extends \Magento\Framework\App\Action\Action implements C
         $this->_messageManager = $context->getMessageManager();
         $this->_logger = $logger;
         $this->_pageFactory = $pageFactory;
+
+
+        $this->_invoiceRepository  = $invoiceRepository;
+        $this->_transaction = $transaction;
+        $this->_transactionBuilder = $transactionBuilder;
 
         
         $this->_configData = $this->_objectManager->get('Cardinity\Payment\Helper\Data');
@@ -127,15 +140,19 @@ abstract class Payment extends \Magento\Framework\App\Action\Action implements C
         
         $orderModel = $this->_getOrderModel();
 
+        $paymentId= null;
+
         //if internal
         if($external == false){
             $authModel = $this->_getAuthModel();
             $order = $orderModel->load($authModel->getOrderId());
+            $paymentId= $authModel->getPaymentId();
 
             $this->_log("in ".__METHOD__." auth model :".$authModel->getOrderId() );
         }else{
             $externalModel = $this->_getExternalModel();
             $order = $orderModel->load($externalModel->getOrderId());
+            $paymentId = $externalModel->getPaymentId();
 
             $this->_log("in ".__METHOD__." external model :".$externalModel->getOrderId() );
         }
@@ -145,7 +162,6 @@ abstract class Payment extends \Magento\Framework\App\Action\Action implements C
         $this->_log("in ".__METHOD__." order id :".$order->getId() );
         $this->_log("in ".__METHOD__." order :".$orderModel::STATE_PENDING_PAYMENT );
         
-
         
         if ($order && $order->getId() && $order->getState() == $orderModel::STATE_PENDING_PAYMENT) {
             try {
@@ -157,6 +173,12 @@ abstract class Payment extends \Magento\Framework\App\Action\Action implements C
                 $this->_log('Order marked as paid', $order->getRealOrderId());
 
                 $this->_createInvoice($order);
+                $this->_addTransactionToOrder($order, array(
+                    'id' =>  $paymentId,
+                    'total' =>  $order->getGrandTotal(),
+                    'currency' =>  $order->getBaseCurrency(),
+                    'status' => 'paid'
+                ));
 
                 return true;
             } catch (\Exception $exception) {
@@ -172,6 +194,7 @@ abstract class Payment extends \Magento\Framework\App\Action\Action implements C
     
     protected function _createInvoice($order)
     {
+        $this->_log('called ' . __METHOD__);
         if (!$order->canInvoice()) {
             return false;
         }
@@ -182,14 +205,83 @@ abstract class Payment extends \Magento\Framework\App\Action\Action implements C
             if ($invoice->canCapture()) {
                 $invoice->capture();
             }
+
+            $invoice->getOrder()->setIsInProcess(true);
+            $invoice->pay();  
             $invoice->save();
+
             $order->addRelatedObject($invoice);
 
-            $this->_log('Invoice created', $order->getRealOrderId());
+            // Create the transaction
+            $transactionSave = $this->_transaction
+            ->addObject($invoice)
+            ->addObject($order);
+            $transactionSave->save();
+
+            $this->_log('invoice step4');
+            
+            $order->save();  
+
+            $this->_log('invoice step5');
+
+            // Save the invoice
+            $this->_invoiceRepository->save($invoice);
+
+            $this->_log('invoice step6');
+
+            $this->_log('Order created', $order->getRealOrderId());
+            $this->_log('Invoice created', $invoice->getId());
 
             return true;
         } catch (\Exception $exception) {
+            $this->_log('invoice exception occured');
             return false;
         }
     }
+
+    public function _addTransactionToOrder($order, $paymentData) {
+        try {
+            // Prepare payment object
+            $payment = $order->getPayment();
+            $payment->setMethod('cardinity'); 
+            $payment->setLastTransId($paymentData['id']);
+            $payment->setTransactionId($paymentData['id']);
+            $payment->setAdditionalInformation([\Magento\Sales\Model\Order\Payment\Transaction::RAW_DETAILS => (array) $paymentData]);
+
+            $this->_log('transaction step1');
+
+            // Formatted price
+            $formatedPrice = $order->getBaseCurrency()->formatTxt($order->getGrandTotal());
+
+            $this->_log('transaction step2');
+ 
+            // Prepare transaction
+            $transaction = $this->_transactionBuilder->setPayment($payment)
+            ->setOrder($order)
+            ->setTransactionId($paymentData['id'])
+            ->setAdditionalInformation([\Magento\Sales\Model\Order\Payment\Transaction::RAW_DETAILS => (array) $paymentData])
+            ->setFailSafe(true)
+            ->build(\Magento\Sales\Model\Order\Payment\Transaction::TYPE_CAPTURE);
+
+            $this->_log('transaction step3');
+
+            // Add transaction to payment
+            $payment->addTransactionCommentsToOrder($transaction, __('The authorized amount is %1.', $formatedPrice));
+            $payment->setParentTransactionId(null);
+
+            $this->_log('transaction step4');
+            // Save payment, transaction and order
+            $payment->save();
+            $order->save();
+            $transaction->save();
+            $this->_log('transaction step5');
+ 
+            return  $transaction->getTransactionId();
+
+        } catch (Exception $e) {
+            $this->_log('transaction exception occured');
+        }
+    }
+
+    
 }

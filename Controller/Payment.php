@@ -46,16 +46,15 @@ abstract class Payment extends \Magento\Framework\App\Action\Action implements C
      /**
      * @inheritDoc
      */
-    public function createCsrfValidationException(
-        RequestInterface $request
-    ): ?InvalidRequestException {
+    public function createCsrfValidationException(RequestInterface $request): InvalidRequestException 
+    {
         return null;
     }
 
     /**
      * @inheritDoc
      */
-    public function validateForCsrf(RequestInterface $request): ?bool
+    public function validateForCsrf(RequestInterface $request): bool
     {
         return true;
     }

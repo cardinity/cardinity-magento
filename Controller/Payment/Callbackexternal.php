@@ -24,8 +24,8 @@ class Callbackexternal extends \Cardinity\Payment\Controller\Payment
 
             $message = '';
 
-            $postData = $_POST;
-
+            $postData = $this->getRequest()->getPost()->toArray();
+           
             ksort($postData);
 
             foreach($postData as $key => $value) {

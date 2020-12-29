@@ -178,7 +178,7 @@ class PaymentModel extends \Magento\Payment\Model\Method\Cc
                     "screen_width" => 1920,
                     "screen_height" => 1040,
                     'challenge_window_size' => 'full-screen',
-                    "user_agent" => $_SERVER['HTTP_USER_AGENT'] ?? "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:21.0) Gecko/20100101 Firefox/21.0",
+                    "user_agent" => $_SERVER['HTTP_USER_AGENT'],
                     "color_depth" =>  24,
                     "time_zone" =>  -60
                 ],

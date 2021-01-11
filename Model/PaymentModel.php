@@ -197,6 +197,7 @@ class PaymentModel extends \Magento\Payment\Model\Method\Cc
             $authModel->setRealOrderId($order->getRealOrderId());
             $authModel->setPaymentId($result->getId());
             if ($result->isApproved()) {
+                $authModel->setThreeDSecureVHistory('none');
                 $authModel->setSuccess(true);
             } elseif ($result->isPending()) {
 

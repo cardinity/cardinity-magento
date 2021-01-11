@@ -103,6 +103,18 @@ class AuthModel
         return $this->_getSession()->getData('crd_3dsv2_needed');
     }
 
+
+     /* added for transaction history*/
+     public function setThreeDSecureVHistory($needed)
+     {
+         $this->_getSession()->setData('crd_3dsv_history', $needed);
+     }
+ 
+     public function getThreeDSecureVHistory()
+     {
+         return $this->_getSession()->getData('crd_3dsv_history');
+     }
+
     /**
      * Cleanup data
      */
@@ -115,6 +127,7 @@ class AuthModel
         $this->_getSession()->setData('crd_real_order_id', null);
         $this->_getSession()->setData('crd_3ds_needed', null);
         $this->_getSession()->setData('crd_3dsv2_needed', null);
+        $this->_getSession()->setData('crd_3dsv_history', null);
         $this->_getSession()->setData('crd_success', null);
         $this->_getSession()->setData('crd_failure', null);
         

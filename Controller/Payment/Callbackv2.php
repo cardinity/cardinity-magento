@@ -53,6 +53,7 @@ class Callbackv2 extends \Cardinity\Payment\Controller\Payment
             if($status == "approved"){
                 $this->_log('Payment finalized successfully', $order->getRealOrderId());
 
+                $authModel->setThreeDSecureVHistory('3D Secure version 2');
                 $authModel->setSuccess(true);
                 $this->_success();
     

@@ -46,16 +46,15 @@ abstract class Payment extends \Magento\Framework\App\Action\Action implements C
      /**
      * @inheritDoc
      */
-    public function createCsrfValidationException(
-        RequestInterface $request
-    ): ?InvalidRequestException {
+    public function createCsrfValidationException(RequestInterface $request): InvalidRequestException 
+    {
         return null;
     }
 
     /**
      * @inheritDoc
      */
-    public function validateForCsrf(RequestInterface $request): ?bool
+    public function validateForCsrf(RequestInterface $request): bool
     {
         return true;
     }
@@ -141,18 +140,22 @@ abstract class Payment extends \Magento\Framework\App\Action\Action implements C
         $orderModel = $this->_getOrderModel();
 
         $paymentId= null;
+        $threedSecure = 'none';
 
         //if internal
         if($external == false){
             $authModel = $this->_getAuthModel();
             $order = $orderModel->load($authModel->getOrderId());
             $paymentId= $authModel->getPaymentId();
-
+            $threedSecure = $authModel->getThreeDSecureVHistory();
+            
             $this->_log("in ".__METHOD__." auth model :".$authModel->getOrderId() );
         }else{
             $externalModel = $this->_getExternalModel();
             $order = $orderModel->load($externalModel->getOrderId());
             $paymentId = $externalModel->getPaymentId();
+
+            $threedSecure = 'unknown(external)';
 
             $this->_log("in ".__METHOD__." external model :".$externalModel->getOrderId() );
         }
@@ -177,6 +180,7 @@ abstract class Payment extends \Magento\Framework\App\Action\Action implements C
                     'id' =>  $paymentId,
                     'total' =>  $order->getGrandTotal(),
                     'currency' =>  $order->getBaseCurrency(),
+                    '3DSecure' => $authModel->getThreeDSecureVHistory(),
                     'status' => 'paid'
                 ));
 
@@ -246,7 +250,7 @@ abstract class Payment extends \Magento\Framework\App\Action\Action implements C
             $payment->setMethod('cardinity'); 
             $payment->setLastTransId($paymentData['id']);
             $payment->setTransactionId($paymentData['id']);
-            $payment->setAdditionalInformation([\Magento\Sales\Model\Order\Payment\Transaction::RAW_DETAILS => (array) $paymentData]);
+            //$payment->setAdditionalInformation([\Magento\Sales\Model\Order\Payment\Transaction::RAW_DETAILS => (array) $paymentData]);
 
             $this->_log('transaction step1');
 
@@ -259,7 +263,11 @@ abstract class Payment extends \Magento\Framework\App\Action\Action implements C
             $transaction = $this->_transactionBuilder->setPayment($payment)
             ->setOrder($order)
             ->setTransactionId($paymentData['id'])
-            ->setAdditionalInformation([\Magento\Sales\Model\Order\Payment\Transaction::RAW_DETAILS => (array) $paymentData])
+            ->setAdditionalInformation([
+                \Magento\Sales\Model\Order\Payment\Transaction::RAW_DETAILS => array(                    
+                    (string) $paymentData['3DSecure'],
+                ),
+            ])
             ->setFailSafe(true)
             ->build(\Magento\Sales\Model\Order\Payment\Transaction::TYPE_CAPTURE);
 

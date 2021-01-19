@@ -1,6 +1,6 @@
 <?php
 
-namespace Cardinity\Payment\Helper;
+namespace Cardinity\Magento\Helper;
 
 class Data extends \Magento\Framework\App\Helper\AbstractHelper
 {

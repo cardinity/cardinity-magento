@@ -13,9 +13,9 @@ define(
         var displayTemplte;
 
         if(window.checkoutConfig.externalEnabled == 1){
-            displayTemplte = 'Cardinity_Payment/payment/cardinity-external-form';
+            displayTemplte = 'Cardinity_Magento/payment/cardinity-external-form';
         }else{
-            displayTemplte = 'Cardinity_Payment/payment/cardinity-form';
+            displayTemplte = 'Cardinity_Magento/payment/cardinity-form';
         }
         
 

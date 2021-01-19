@@ -1,6 +1,6 @@
 <?php
 
-namespace Cardinity\Payment\Controller;
+namespace Cardinity\Magento\Controller;
 
 
 use Magento\Framework\App\CsrfAwareActionInterface;
@@ -17,7 +17,7 @@ abstract class Payment extends \Magento\Framework\App\Action\Action implements C
 
     public function __construct(
         \Magento\Framework\App\Action\Context $context,
-        \Cardinity\Payment\Logger\Logger $logger,
+        \Cardinity\Magento\Logger\Logger $logger,
         \Magento\Framework\View\Result\PageFactory $pageFactory,
 
         \Magento\Sales\Model\Order\Payment\Transaction\BuilderInterface $transactionBuilder,
@@ -40,7 +40,7 @@ abstract class Payment extends \Magento\Framework\App\Action\Action implements C
         $this->_transactionBuilder = $transactionBuilder;
 
         
-        $this->_configData = $this->_objectManager->get('Cardinity\Payment\Helper\Data');
+        $this->_configData = $this->_objectManager->get('Cardinity\Magento\Helper\Data');
     }
 
      /**
@@ -74,17 +74,17 @@ abstract class Payment extends \Magento\Framework\App\Action\Action implements C
 
     protected function _getAuthModel()
     {
-        return $this->_objectManager->create('Cardinity\Payment\Model\AuthModel');
+        return $this->_objectManager->create('Cardinity\Magento\Model\AuthModel');
     }
 
     protected function _getExternalModel()
     {
-        return $this->_objectManager->create('Cardinity\Payment\Model\ExternalModel');
+        return $this->_objectManager->create('Cardinity\Magento\Model\ExternalModel');
     }
 
     protected function _getPaymentModel()
     {
-        return $this->_objectManager->create('Cardinity\Payment\Model\PaymentModel');
+        return $this->_objectManager->create('Cardinity\Magento\Model\PaymentModel');
     }
 
     protected function _setMessage($message, $type)

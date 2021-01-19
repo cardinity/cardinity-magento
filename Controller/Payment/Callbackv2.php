@@ -1,8 +1,8 @@
 <?php
 
-namespace Cardinity\Payment\Controller\Payment;
+namespace Cardinity\Magento\Controller\Payment;
 
-class Callbackv2 extends \Cardinity\Payment\Controller\Payment
+class Callbackv2 extends \Cardinity\Magento\Controller\Payment
 {
     public function execute()
     {

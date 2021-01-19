@@ -1,6 +1,6 @@
 <?php
 
-namespace Cardinity\Payment\Model;
+namespace Cardinity\Magento\Model;
 
 use Cardinity\Client;
 use Cardinity\Exception;
@@ -399,13 +399,13 @@ class PaymentModel extends \Magento\Payment\Model\Method\Cc
 
     private function _getAuthModel()
     {
-        return $this->_objectManager->create('Cardinity\Payment\Model\AuthModel');
+        return $this->_objectManager->create('Cardinity\Magento\Model\AuthModel');
     }
 
 
     private function _getExternalModel()
     {
-        return $this->_objectManager->create('Cardinity\Payment\Model\ExternalModel');
+        return $this->_objectManager->create('Cardinity\Magento\Model\ExternalModel');
     }
 
 

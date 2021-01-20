@@ -1,5 +1,5 @@
 <?php
-namespace Cardinity\Payment\Model;
+namespace Cardinity\Magento\Model;
 
 use Magento\Checkout\Model\ConfigProviderInterface;
 
@@ -17,7 +17,7 @@ class CustomConfigProvider implements ConfigProviderInterface
         $config['customData'] = 'My Custom Data text.';
         
 
-        $configData = $this->_objectManager->get('Cardinity\Payment\Helper\Data');        
+        $configData = $this->_objectManager->get('Cardinity\Magento\Helper\Data');        
         $config['externalEnabled'] = $configData->getConfig('payment/cardinity/external_enabled');
 
         return $config;

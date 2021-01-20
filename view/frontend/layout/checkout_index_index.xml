@@ -18,7 +18,7 @@
                                                             <!-- merge payment method renders here -->
                                                             <item name="children" xsi:type="array">
                                                                 <item name="cardinity-payments" xsi:type="array">
-                                                                    <item name="component" xsi:type="string">Cardinity_Payment/js/view/payment/cardinity</item>
+                                                                    <item name="component" xsi:type="string">Cardinity_Magento/js/view/payment/cardinity</item>
                                                                     <item name="methods" xsi:type="array">
                                                                         <item name="cardinity" xsi:type="array">
                                                                             <item name="isBillingAddressRequired" xsi:type="boolean">true</item>

@@ -1,6 +1,6 @@
 <?php
 
-namespace Cardinity\Payment\Logger;
+namespace Cardinity\Magento\Logger;
 
 class Handler extends \Magento\Framework\Logger\Handler\Base
 {

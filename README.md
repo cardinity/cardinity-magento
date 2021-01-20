@@ -19,7 +19,7 @@ Once you redirected to Keys page copy private and public access key
 Login to your store admin panel
 
 ### Using app/code
-put this inside app/code/Cardinity/Payment
+put this inside app/code/Cardinity/Magento
 
 add
 ```

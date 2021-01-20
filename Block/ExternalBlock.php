@@ -1,6 +1,6 @@
 <?php
 
-namespace Cardinity\Payment\Block;
+namespace Cardinity\Magento\Block;
 
 class ExternalBlock extends \Magento\Framework\View\Element\Template
 {
@@ -86,6 +86,6 @@ class ExternalBlock extends \Magento\Framework\View\Element\Template
 
     private function _getExternalModel()
     {
-        return $this->_objectManager->create('Cardinity\Payment\Model\ExternalModel');
+        return $this->_objectManager->create('Cardinity\Magento\Model\ExternalModel');
     }
 }

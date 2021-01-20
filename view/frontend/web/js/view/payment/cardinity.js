@@ -11,7 +11,7 @@ define(
         rendererList.push(
             {
                 type: 'cardinity',
-                component: 'Cardinity_Payment/js/view/payment/method-renderer/cardinity-external-method'
+                component: 'Cardinity_Magento/js/view/payment/method-renderer/cardinity-external-method'
             }
         );
 

@@ -1,5 +1,5 @@
 {
-    "name": "cardinity/cardinity-magento",
+    "name": "cardinity/magento",
     "description": "Cardinity Payment Gateway for Magento 2",
     "type": "magento2-module",
     "version": "2.0.0",
@@ -13,7 +13,7 @@
             "registration.php"
         ],
         "psr-4": {
-            "Cardinity\\Payment\\": ""
+            "Cardinity\\Magento\\": ""
         }
     }
 }

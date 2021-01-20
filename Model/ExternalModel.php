@@ -1,6 +1,6 @@
 <?php
 
-namespace Cardinity\Payment\Model;
+namespace Cardinity\Magento\Model;
 
 class ExternalModel
 {

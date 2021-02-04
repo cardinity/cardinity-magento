@@ -26,6 +26,8 @@ class Cardinity_Payments_Model_Payment extends Mage_Payment_Model_Method_Cc
      */
     private $_client;
 
+    private $_storeId;
+
     /**
      * Creates Cardinity SDK client
      */
@@ -35,8 +37,10 @@ class Cardinity_Payments_Model_Payment extends Mage_Payment_Model_Method_Cc
             'consumerKey' => $this->getConfigData('cardinity_key'),
             'consumerSecret' => $this->getConfigData('cardinity_secret'),
         ]);
+        
+        $this->_storeId = Mage::app()->getStore()->getStoreId();
 
-        $external = $this->getConfigData('external_enabled');
+        $external = $this->getConfigData('external_enabled', $storeId);
 
         if($external == 1){
             $this->_isSetToExternal = true;
@@ -150,6 +154,8 @@ class Cardinity_Payments_Model_Payment extends Mage_Payment_Model_Method_Cc
 
         $this->_log('called ' . __METHOD__);
 
+        
+
         // Process payment
         $payment = $this->getInfoInstance();
         $order = $payment->getOrder();
@@ -179,8 +185,8 @@ class Cardinity_Payments_Model_Payment extends Mage_Payment_Model_Method_Cc
         $description = $order->getId();
         $order_id = $order->getRealOrderId();
         
-        $project_id = $this->getConfigData('cardinity_project_id');
-        $project_secret = $this->getConfigData('cardinity_project_secret');
+        $project_id = $this->getConfigData('cardinity_project_id', $$this->_storeId);
+        $project_secret = $this->getConfigData('cardinity_project_secret', $$this->_storeId);
 
         $attributes = [
             "amount" => $amount,

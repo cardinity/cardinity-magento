@@ -97,14 +97,14 @@ class Cardinity_Payments_PaymentController extends Mage_Core_Controller_Front_Ac
     public function callbackextAction()
     {
 
-        $this->_log('called ' . __METHOD__);
+        $this->_log('called ' . __METHOD__);        
+        $this->_log('external post params ' . print_r($_POST, true));
 
         if (!$this->getRequest()->isPost() || empty($this->getRequest()->getPost('signature')) ) {
             $this->_log('invalid callback notification received. Wrong request type or missing mandatory parameters.', Zend_Log::ERR);
             return $this->_forceRedirect('checkout/onepage');
         }else{
 
-            $this->_log('post params ' . print_r($_POST, true));
 
             
             $externalModel = $this->_getExternalModel();            

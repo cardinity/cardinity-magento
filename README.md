@@ -1,4 +1,4 @@
-# Cardinity Payment Gateway for Magento1
+# Cardinity Payment Gateway v1.0.3 for Magento1
 
 This module will enable Cardinity payments in your Magento1 e-shop.
 If you are using Magento 2 refer to the master branch

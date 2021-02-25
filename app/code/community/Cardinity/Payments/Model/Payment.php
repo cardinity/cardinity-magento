@@ -19,7 +19,7 @@ class Cardinity_Payments_Model_Payment extends Mage_Payment_Model_Method_Cc
     protected $_canSaveCc = false;
     protected $_isInitializeNeeded  = true;
 
-    
+
 
     /**
      * @var $_client Cardinity\Client SDK client
@@ -37,10 +37,10 @@ class Cardinity_Payments_Model_Payment extends Mage_Payment_Model_Method_Cc
             'consumerKey' => $this->getConfigData('cardinity_key'),
             'consumerSecret' => $this->getConfigData('cardinity_secret'),
         ]);
-        
+
         $this->_storeId = Mage::app()->getStore()->getStoreId();
 
-        $external = $this->getConfigData('external_enabled', $storeId);
+        $external = $this->getConfigData('external_enabled', $this->_storeId);
 
         if($external == 1){
             $this->_isSetToExternal = true;
@@ -48,8 +48,8 @@ class Cardinity_Payments_Model_Payment extends Mage_Payment_Model_Method_Cc
             $this->_formBlockType = 'payment/form';
             $this->_infoBlockType = 'payment/info';
         }
-            
-        
+
+
     }
 
     /**
@@ -154,7 +154,7 @@ class Cardinity_Payments_Model_Payment extends Mage_Payment_Model_Method_Cc
 
         $this->_log('called ' . __METHOD__);
 
-        
+
 
         // Process payment
         $payment = $this->getInfoInstance();
@@ -166,7 +166,7 @@ class Cardinity_Payments_Model_Payment extends Mage_Payment_Model_Method_Cc
             Mage::throwException(Mage::helper('payment')->__('Invalid order amount. Minimum amount: 0.50!'));
         }
 
-        
+
         $amount = $order->getTotalDue();
         if ($amount < $this->_minAmount) {
             throw new PaymentException(new Phrase(__('Invalid order amount. Minimum amount: 0.50!')));
@@ -175,7 +175,7 @@ class Cardinity_Payments_Model_Payment extends Mage_Payment_Model_Method_Cc
 
 
         $amount =  number_format(floatval($amount), 2);
-        
+
         $cancel_url =  Mage::getUrl('cardinity/payment/callbackext', array('_secure' => true));  // $this->_storeManager->getStore()->getUrl('cardinity/payment/callbackexternal', ['_secure' => true]);
         $return_url = Mage::getUrl('cardinity/payment/callbackext', array('_secure' => true));// $this->_storeManager->getStore()->getUrl('cardinity/payment/callbackexternal', ['_secure' => true]);
 
@@ -184,7 +184,7 @@ class Cardinity_Payments_Model_Payment extends Mage_Payment_Model_Method_Cc
         $currency =  Mage::app()->getStore()->getBaseCurrencyCode();
         $description = $order->getId();
         $order_id = $order->getRealOrderId();
-        
+
         $project_id = $this->getConfigData('cardinity_project_id', $$this->_storeId);
         $project_secret = $this->getConfigData('cardinity_project_secret', $$this->_storeId);
 
@@ -218,7 +218,7 @@ class Cardinity_Payments_Model_Payment extends Mage_Payment_Model_Method_Cc
 
         $externalModel->setOrderId($order->getId());
         $externalModel->setRealOrderId($order->getRealOrderId());
-        
+
 
         $externalModel->setAmount($amount);
         $externalModel->setCancelUrl($cancel_url);

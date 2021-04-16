@@ -125,21 +125,23 @@ class Cardinity_Payments_Model_External
         return $this->_getSession()->getData('crd_payment_id');
     }
 
+    //This is the orderID used on database
     public function setOrderId($orderId)
     {
         $this->_getSession()->setData('crd_order_id', $orderId);
     }
 
-    public function getOrderId()
+    public function getOrderId() 
     {
         return $this->_getSession()->getData('crd_order_id');
     }
 
+    //This is the orderID used on website
     public function setRealOrderId($orderId)
     {
         $this->_getSession()->setData('crd_real_order_id', $orderId);
     }
-
+ 
     public function getRealOrderId()
     {
         return $this->_getSession()->getData('crd_real_order_id');

@@ -146,7 +146,7 @@ class Cardinity_Payments_PaymentController extends Mage_Core_Controller_Front_Ac
                                 </div>
                                 <h2 class="sub-title">Thank you for your purchase!</h2>
 
-                                <p>Your order # is: 100000046.</p>
+                                <p>Your order # is: '.$order->getRealOrderId().'.</p>
                                 <p>You will receive an order confirmation email with details of your order and a link to track its progress.</p>
 
                                 <div class="buttons-set">

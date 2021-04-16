@@ -105,16 +105,7 @@ class Cardinity_Payments_Model_External
         return $this->_getSession()->getData('crd_external_signature');
     }
 
-    public function setSecret($signature)
-    {
-        $this->_getSession()->setData('crd_external_secret', $signature);
-    }
-
-    public function getSecret()
-    {
-        return $this->_getSession()->getData('crd_external_secret');
-    }
-
+    
     public function setPaymentId($paymentId)
     {
         $this->_getSession()->setData('crd_payment_id', $paymentId);
@@ -186,8 +177,6 @@ class Cardinity_Payments_Model_External
         $this->_getSession()->setData('crd_external_required', null);
 
         
-
-
 
         $this->_getSession()->setData('crd_payment_id', null);
         $this->_getSession()->setData('crd_order_id', null);

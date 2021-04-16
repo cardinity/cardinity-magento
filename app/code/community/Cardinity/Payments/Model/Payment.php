@@ -230,7 +230,6 @@ class Cardinity_Payments_Model_Payment extends Mage_Payment_Model_Method_Cc
         $externalModel->setSignature($signature);
         $externalModel->setExternalRequired(1);
 
-        $externalModel->setSecret($project_secret);
 
         $this->_log("External Model Prepd");
 

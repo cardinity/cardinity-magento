@@ -97,20 +97,20 @@ class Cardinity_Payments_PaymentController extends Mage_Core_Controller_Front_Ac
     public function callbackextAction()
     {
 
-        $this->_log('called ' . __METHOD__);        
-        $this->_log('external post params ' . print_r($_POST, true));
+        $this->_log('called ' . __METHOD__);
 
         if (!$this->getRequest()->isPost() || empty($this->getRequest()->getPost('signature')) ) {
             $this->_log('invalid callback notification received. Wrong request type or missing mandatory parameters.', Zend_Log::ERR);
             return $this->_forceRedirect('checkout/onepage');
         }else{
 
+            $this->_log('post params ' . print_r($_POST, true));
 
-            
             $externalModel = $this->_getExternalModel();            
+            $externalModel->setOrderId($_POST['description']);
             $order = Mage::getModel('sales/order')->load($externalModel->getOrderId());
             
-
+            
             $message = '';
             $postData = $_POST;
 
@@ -121,8 +121,7 @@ class Cardinity_Payments_PaymentController extends Mage_Core_Controller_Front_Ac
                 $message .= $key.$value;
             }
 
-            $signature = hash_hmac('sha256', $message, $externalModel->getSecret());
-
+            $signature = hash_hmac('sha256', $message, $this->_getProjectSecret());
 
             if ($signature == $postData['signature']) {
                 $this->_log('Post data valid');
@@ -134,11 +133,29 @@ class Cardinity_Payments_PaymentController extends Mage_Core_Controller_Front_Ac
 
                     $externalModel->setPaymentId($postData['id']);
                     $externalModel->setSuccess(true);
-                    
 
                     $this->_success($external = true);
 
-                    return $this->_forceRedirect('checkout/onepage/success');
+                    if($externalModel->getAmount()){
+                        return $this->_forceRedirect('checkout/onepage/success');
+                    }else{
+                        echo '
+                        <div class="col-main">
+                                <div class="page-title">
+                                    <h1>Your order has been received.</h1>
+                                </div>
+                                <h2 class="sub-title">Thank you for your purchase!</h2>
+
+                                <p>Your order # is: '.$order->getRealOrderId().'.</p>
+                                <p>You will receive an order confirmation email with details of your order and a link to track its progress.</p>
+
+                                <div class="buttons-set">
+                                <button type="button" class="button" title="Continue Shopping" onclick="window.location='."'".Mage::getBaseUrl()."'".'  "><span><span>Continue Shopping</span></span></button>
+                                </div>
+                        </div>'; 
+                        exit();
+                    }
+                    
                 }else{
                     $this->_log('Payment failed', $order->getRealOrderId());
 
@@ -149,7 +166,11 @@ class Cardinity_Payments_PaymentController extends Mage_Core_Controller_Front_Ac
                 }
             } else {
                 $this->_log('Post data invalid');
-                $this->_log('Payment failed', $order->getRealOrderId());
+                $this->_log("$signature <> $postData[signature]");
+                
+                $this->_log('Payment failed '. $order->getRealOrderId());
+
+                $this->_log('fetched secret'.$this->_getProjectSecret());
 
                 $externalModel->setFailure(true);
                 $this->_cancel();
@@ -235,6 +256,8 @@ class Cardinity_Payments_PaymentController extends Mage_Core_Controller_Front_Ac
 
             return true;
 
+        }else{
+            $this->_log("problem with order state :". $order->getState());
         }
 
         return false;
@@ -296,6 +319,13 @@ class Cardinity_Payments_PaymentController extends Mage_Core_Controller_Front_Ac
     private function _getExternalModel()
     {
         return Mage::getModel('cardinity/external');
+    }
+
+    private function _getProjectSecret()
+    {
+        $store = Mage::app()->getStore(); // store info
+        $configValue = Mage::getStoreConfig('payment/cardinity/cardinity_project_secret', $store);
+        return $configValue;
     }
 
 }

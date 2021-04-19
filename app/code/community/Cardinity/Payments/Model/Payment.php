@@ -185,8 +185,8 @@ class Cardinity_Payments_Model_Payment extends Mage_Payment_Model_Method_Cc
         $description = $order->getId();
         $order_id = $order->getRealOrderId();
 
-        $project_id = $this->getConfigData('cardinity_project_id', $$this->_storeId);
-        $project_secret = $this->getConfigData('cardinity_project_secret', $$this->_storeId);
+        $project_id = $this->getConfigData('cardinity_project_id', $this->_storeId);
+        $project_secret = $this->getConfigData('cardinity_project_secret', $this->_storeId);
 
         $attributes = [
             "amount" => $amount,
@@ -230,7 +230,6 @@ class Cardinity_Payments_Model_Payment extends Mage_Payment_Model_Method_Cc
         $externalModel->setSignature($signature);
         $externalModel->setExternalRequired(1);
 
-        $externalModel->setSecret($project_secret);
 
         $this->_log("External Model Prepd");
 

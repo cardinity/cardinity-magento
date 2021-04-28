@@ -180,7 +180,7 @@ abstract class Payment extends \Magento\Framework\App\Action\Action implements C
                     'id' =>  $paymentId,
                     'total' =>  $order->getGrandTotal(),
                     'currency' =>  $order->getBaseCurrency(),
-                    '3DSecure' => $authModel->getThreeDSecureVHistory(),
+                    '3DSecure' => $threedSecure,
                     'status' => 'paid'
                 ));
 

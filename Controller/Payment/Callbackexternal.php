@@ -48,7 +48,8 @@ class Callbackexternal extends \Cardinity\Magento\Controller\Payment
                     $externalModel->setSuccess(true);
 
 
-                    $this->_success($external = true);
+                    //$this->_success($external = true);
+                    $this->_success(true);
 
                     $this->_forceRedirect('checkout/onepage/success');
                 }else{

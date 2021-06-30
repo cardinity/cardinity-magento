@@ -16,15 +16,21 @@ class Callback extends \Cardinity\Magento\Controller\Payment
         $authModel = $this->_getAuthModel();
         $orderModel = $this->_getOrderModel();
 
-        $order = $orderModel->load($authModel->getOrderId());
         $pares = $this->getRequest()->getPost('PaRes');
-        $orderId = $this->getRequest()->getPost('MD');
+        $md = explode("_",$this->getRequest()->getPost('MD'));
+        $orderId = $md[0];
+        $paymentId = $md[1];
 
-        if (!$order->getId()
-            || $order->getId() !== $authModel->getOrderId()
-            || $order->getRealOrderId() !== $orderId
-            || $order->getState() !== $orderModel::STATE_PENDING_PAYMENT
-        ) {
+        $order = $orderModel->load($orderId);
+
+        
+        if(!$authModel->getOrderId()){ //if session lost, repopulate from callback data
+            $authModel->setOrderId($orderId);
+            $authModel->setPaymentId($paymentId);
+        }
+
+
+        if (!$order->getId() || $order->getState() !== $orderModel::STATE_PENDING_PAYMENT ) {
             $this->_log('Invalid callback notification received. Order validation failed.');
             $authModel->cleanup();
 

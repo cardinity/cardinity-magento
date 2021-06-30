@@ -4,6 +4,7 @@ namespace Cardinity\Magento\Controller\Payment;
 
 class Callbackexternal extends \Cardinity\Magento\Controller\Payment
 {
+    
     public function execute()
     {
         $this->_log("Executing callback external");
@@ -19,9 +20,7 @@ class Callbackexternal extends \Cardinity\Magento\Controller\Payment
 
             $externalModel = $this->_getExternalModel();
             $orderModel = $this->_getOrderModel();
-            $order = $orderModel->load($externalModel->getOrderId());
-
-
+            
             $message = '';
 
             $postData = $this->getRequest()->getPost()->toArray();
@@ -33,7 +32,13 @@ class Callbackexternal extends \Cardinity\Magento\Controller\Payment
                 $message .= $key.$value;
             }
 
-            $signature = hash_hmac('sha256', $message, $externalModel->getSecret());
+            
+            $order = $orderModel->load($postData['description']);
+
+            $projectSecret = $this->scopeConfig->getValue('payment/cardinity/cardinity_project_secret', \Magento\Store\Model\ScopeInterface::SCOPE_STORE);
+
+
+            $signature = hash_hmac('sha256', $message, $projectSecret) ;
 
 
             if ($signature == $postData['signature']) {
@@ -72,4 +77,5 @@ class Callbackexternal extends \Cardinity\Magento\Controller\Payment
         }
 
     }
+  
 }

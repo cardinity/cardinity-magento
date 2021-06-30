@@ -24,36 +24,37 @@ class Callbackv2 extends \Cardinity\Magento\Controller\Payment
         $authModel = $this->_getAuthModel();
         $orderModel = $this->_getOrderModel();
 
-        $order = $orderModel->load($authModel->getOrderId());
+        
         $cres = $this->getRequest()->getPost('cres');
-        $orderId = $this->getRequest()->getPost('threeDSSessionData');
+        $threedsdata = explode("_", $this->getRequest()->getPost('threeDSSessionData'));
+        $orderId = $threedsdata[0];
+        $paymentId = $threedsdata[1];
+        $order = $orderModel->load($orderId);
 
-        if (!$order->getId()
-            || $order->getId() !== $authModel->getOrderId()
-            || $order->getRealOrderId() !== $orderId
-            || $order->getState() !== $orderModel::STATE_PENDING_PAYMENT
-        ) {
-            
+        if(!$authModel->getOrderId()){ //if session lost, repopulate from callback data
+            $authModel->setOrderId($orderId);
+            $authModel->setPaymentId($paymentId);
+        }
+
+        if(!$order->getId()){
             $this->_log('Invalid callback data received. Order validation failed.');
-           
-            $authModel->cleanup();
-
             return $this->_forceRedirect('checkout');
         }
+
 
         $this->_log('Finalizing payment', $order->getRealOrderId());
 
         $model = $this->_getPaymentModel();
-        $finalize = $model->finalize($authModel->getPaymentId(), $cres, true);
+        $finalize = $model->finalize($paymentId, $cres, true);
 
-
+ 
         if ($finalize) {
 
             $status = $finalize->getStatus(); 
             if($status == "approved"){
                 $this->_log('Payment finalized successfully', $order->getRealOrderId());
 
-                $authModel->setThreeDSecureVHistory('3D Secure version 2');
+                $authModel->setThreeDSecureVHistory('3D Secure version 2');                
                 $authModel->setSuccess(true);
                 $this->_success();
     

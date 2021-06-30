@@ -14,12 +14,14 @@ use Magento\Framework\DB\Transaction;
 abstract class Payment extends \Magento\Framework\App\Action\Action implements CsrfAwareActionInterface
 {
     protected $_configData;
+    protected $scopeConfig;
 
     public function __construct(
         \Magento\Framework\App\Action\Context $context,
         \Cardinity\Magento\Logger\Logger $logger,
         \Magento\Framework\View\Result\PageFactory $pageFactory,
 
+        \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
         \Magento\Sales\Model\Order\Payment\Transaction\BuilderInterface $transactionBuilder,
         InvoiceRepositoryInterface $invoiceRepository,
         Transaction $transaction   
@@ -41,6 +43,8 @@ abstract class Payment extends \Magento\Framework\App\Action\Action implements C
 
         
         $this->_configData = $this->_objectManager->get('Cardinity\Magento\Helper\Data');
+
+        $this->scopeConfig = $scopeConfig;
     }
 
      /**

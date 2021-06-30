@@ -118,13 +118,13 @@ class PaymentModel extends \Magento\Payment\Model\Method\Cc
         $this->_log("External status ". $external);
 
         if($external == 1){
-            $executeFunction = "_makeExternalPayment";
+            $executePayment = "_makeExternalPayment";
         }else{
-            $executeFunction = "_makePayment";
+            $executePayment = "_makePayment";
         }
 
         try {
-            $this->$executeFunction();
+            $this->$executePayment();
         } catch (Exception $e) {
             $this->_log($e->getMessage());
             throw new PaymentException(new Phrase(__('Internal error occurred. Please contact support.')));
@@ -160,7 +160,7 @@ class PaymentModel extends \Magento\Payment\Model\Method\Cc
             'amount' => floatval($amount),
             'currency' => $this->_storeManager->getStore()->getCurrentCurrency()->getCode(),
             'settle' => true,
-            'order_id' => $order->getRealOrderId(),
+            'order_id' => $order->getOrderId(),
             'country' => $order->getBillingAddress()->getData('country_id'),
             'payment_method' => Payment\Create::CARD,
             'payment_instrument' => [
@@ -244,8 +244,6 @@ class PaymentModel extends \Magento\Payment\Model\Method\Cc
         if ($amount < $this->_minAmount) {
             throw new PaymentException(new Phrase(__('Invalid order amount. Minimum amount: 0.50!')));
         }
-
-
 
         $amount =  number_format(floatval($amount), 2);
         $cancel_url = $this->_storeManager->getStore()->getUrl('cardinity/payment/callbackexternal', ['_secure' => true]);

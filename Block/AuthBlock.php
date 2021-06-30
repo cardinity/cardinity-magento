@@ -37,9 +37,14 @@ class AuthBlock extends \Magento\Framework\View\Element\Template
         return $this->_getAuthModel()->getData();
     }
 
-    public function getRealOrderId()
+    public function getThreedsData()
     {
-        return $this->_getAuthModel()->getRealOrderId();
+        return $this->_getAuthModel()->getOrderId()."_".$this->_getAuthModel()->getPaymentId();
+    }
+
+    public function getMD()
+    {
+        return $this->_getAuthModel()->getOrderId()."_".$this->_getAuthModel()->getPaymentId();
     }
 
     public function getCallbackUrl()

@@ -3,7 +3,7 @@
     <button type="submit" class="action primary"><?php echo __('Continue') ?></button>
     <input type="hidden" name="PaReq" value="<?php echo $block->getAuthData(); ?>" />
     <input type="hidden" name="TermUrl" value="<?php echo $block->getCallbackUrl(); ?>" />
-    <input type="hidden" name="MD" value="<?php echo $block->getRealOrderId(); ?>" />
+    <input type="hidden" name="MD" value="<?php echo $block->getMD(); ?>" />
 </form>
 <script type="text/javascript">
     window.onload = function() {

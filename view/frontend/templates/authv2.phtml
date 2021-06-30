@@ -2,7 +2,7 @@
  <form name="ThreeDForm" method="POST" action="<?php echo $block->getAuthUrl(); ?>">
      <button type="submit" class="action primary"><?php echo __('Continue') ?></button>
      <input type="hidden" name="creq" value="<?php echo $block->getAuthData(); ?>" />
-     <input type="hidden" name="threeDSSessionData" value="<?php echo $block->getRealOrderId(); ?>" />
+     <input type="hidden" name="threeDSSessionData" value="<?php echo $block->getThreedsData(); ?>" />
  </form>
  <script type="text/javascript">
      window.onload = function() {

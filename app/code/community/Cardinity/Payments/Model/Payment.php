@@ -111,6 +111,7 @@ class Cardinity_Payments_Model_Payment extends Mage_Payment_Model_Method_Cc
         // Make initial payment attempt
         try{
             $this->$executeFunction();
+            $this->_isInitializeNeeded = false;
         }catch (Exception $e){
             $this->_log($e);
             Mage::throwException(Mage::helper('payment')->__('Internal error occurred. Please contact support.'));
@@ -176,9 +177,11 @@ class Cardinity_Payments_Model_Payment extends Mage_Payment_Model_Method_Cc
 
         $amount =  number_format(floatval($amount), 2);
 
-        $cancel_url =  Mage::getUrl('cardinity/payment/callbackext', array('_secure' => true));  // $this->_storeManager->getStore()->getUrl('cardinity/payment/callbackexternal', ['_secure' => true]);
-        $return_url = Mage::getUrl('cardinity/payment/callbackext', array('_secure' => true));// $this->_storeManager->getStore()->getUrl('cardinity/payment/callbackexternal', ['_secure' => true]);
+        $cancel_url = Mage::getBaseUrl(Mage_Core_Model_Store::URL_TYPE_LINK, true).'cardinity/payment/callbackext';  // $this->_storeManager->getStore()->getUrl('cardinity/payment/callbackexternal', ['_secure' => true]);
+        $return_url = Mage::getBaseUrl(Mage_Core_Model_Store::URL_TYPE_LINK, true).'cardinity/payment/callbackext';// $this->_storeManager->getStore()->getUrl('cardinity/payment/callbackexternal', ['_secure' => true]);
 
+        
+        $this->_log("return url".$return_url);
 
         $country = $order->getBillingAddress()->getData('country_id');
         $currency =  Mage::app()->getStore()->getBaseCurrencyCode();

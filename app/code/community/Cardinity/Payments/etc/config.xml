@@ -2,7 +2,7 @@
 <config>
     <modules>
         <Cardinity_Payments>
-            <version>2.1.0</version>
+            <version>1.0.4</version>
         </Cardinity_Payments>
     </modules>
     <global>

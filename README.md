@@ -21,36 +21,6 @@ This module will enable Cardinity payments system in your Magento e-shop. If you
 
 ### Installation
 Recommended to install via marketplace. You can click on each step for screenshot to appear with clearer instructions. 
-#### Using marketplace (recommended)
-1) Go to Magento marketplace and search for "Cardinity payment gateway" or navigate directly to → https://marketplace.magento.com/cardinity-magento.html
-2) Select your store version and click ```Add to cart```.
-3) Proceed to checkout, fill in the billing form (don't worry - its free) and obtain the extension via Magento Marketplace Platform.
-4) Once the order is complete, click ```Install```.
-5) Once you are redirected to "My Access Keys" page, copy private and public access keys.
-6) Next, login to your store admin panel. Go to ```System" → "Web setup wizard```, then choose ```Component manager```.
-7) Click on ```Sign in``` and paste Public and Private access keys.
-8) After successfully putting in the keys, click ```Sync```. Then, click ```Install``` under ```New purchases```.
-9) Among new purchases, find Cardinity payment module and click ```Install```. Wait while readiness check is finished. Click ```Next```. During step 2, create a backup if needed (highly recommended) and click next again. Finally, click ```Install``` during "step 3: Component install".
-10) If everything is done correctly, you should be prompted that Cardinity extension has been installed.
-11) Go to ```Stores > Configuration > Sales > Payment Methods > Cardinity```
-12) Finally, enter your API credentials which can be found in your Cardinity account and set the payment method as active
-
-After installation you can setup configurations in ```Store -> Configuration -> Payment Methods```
-
-#### Using composer
-1) Run the following command in Magento 2 root folder (require the module via ```composer.json```)
-```
-$ composer require cardinity/magento
-```
-2) Then, enable the module with
-```
-$ bin/magento module:enable Cardinity_Magento
-$ bin/magento setup:upgrade
-```
-3) Login to the Magento admin panel.
-4) Go to ```Stores > Configuration > Sales > Payment Methods > Cardinity```.
-5) Enter your API credentials which can be found in your Cardinity account and set the payment method as active.
-
 
 #### Using app/code
 0) Download the latest Cardinity Payment Module for Magento 2 here: https://github.com/cardinity/cardinity-magento/releases
@@ -82,26 +52,6 @@ $ bin/magento module:enable Cardinity_Magento
 ### Downloads
 Find the latest Cardinity Payment Module for Magento 1 and 2 here: https://github.com/cardinity/cardinity-magento/releases
 
-<details show>
-  <summary>For Magento 1</summary>
-  
-| Version          | Changes                                             | Link  |
-| ------------- |-----------------------------------------------------|------------|
-| v1.0.4    | <b>Recommended (latest)</b>.<br>Reduced Session dependencies.            | <a href="https://github.com/cardinity/cardinity-magento/releases/tag/magento-1.9">Download</a> |
-| v1.0.3    | <b>Previous Version</b>.<br>Added payment by external hosted gateway            | <a href="https://github.com/cardinity/cardinity-magento/releases/tag/magento-1.9">Download</a> |
-| v1.0.2    | Merge pull request #11 from ```cardinity/dev-1.9.x```; seperate projectID and secret possible in case of multi store| <a href="https://github.com/cardinity/cardinity-magento/releases/tag/magento-1.9">Download</a> |
-| v1.0    | Added payment by external hosted gateway            | <a href="https://github.com/cardinity/cardinity-magento/releases/tag/magento-1.9">Download</a> |
-</details>
-
-<details show>
-  <summary>For Magento 2</summary>
-  
-| Version          | Changes                                             |  Link   |
-| ------------- |-----------------------------------------------------|------------|
-| v2.0.2    | <b>Recommended (latest)</b>.<br>Merge pull request #10 from ```cardinity/improve_compatibility```;<br> renamed module to ```Cardinity_Magento``` | <a href="https://github.com/cardinity/cardinity-magento/releases/tag/v2.0.2.2">Download</a>     |
-| v2.0.1    | bug fix, minor update related to refund issues.     | <a href="https://github.com/cardinity/cardinity-magento/releases/tag/v2.0.1">Download</a>     |
-| v2.0.0    | • Updated cardinity sdk to version 3,<br>• 3D secured version 2 with fallback to version 1,<br>• External hosted payments                  | <a href="https://github.com/cardinity/cardinity-magento/releases/tag/v2.0.0.0">Download</a>       |
-</details>
 
 ### Having problems?  
 

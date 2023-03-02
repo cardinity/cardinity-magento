@@ -44,9 +44,7 @@ class Callbackexternal extends \Cardinity\Magento\Controller\Payment
             if ($signature == $postData['signature']) {
                 $this->_log('Post data valid');
 
-                if(!$externalModel->getOrderId()){ //if session lost, repopulate from callback data
-                    $externalModel->setOrderId($postData['description']);
-                }
+                $externalModel->setOrderId($postData['description']);
 
                 $this->_log(print_r($postData, true));
 

@@ -2,7 +2,7 @@
     "name": "cardinity/magento",
     "description": "Cardinity Payment Gateway for Magento 2",
     "type": "magento2-module",
-    "version": "2.0.0",
+    "version": "2.0.1",
     "license": "MIT",
     "homepage": "https://cardinity.com",
     "require": {

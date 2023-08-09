@@ -25,7 +25,6 @@ class PaymentModel extends \Magento\Payment\Model\Method\Cc
     protected $_isInitializeNeeded = true;
 
     protected $_minAmount = 0.5;
-    protected $_supportedCurrencyCodes = ['EUR', 'USD', 'GBP'];
 
     /**
      * @var $_client Cardinity\Client SDK client
@@ -286,7 +285,7 @@ class PaymentModel extends \Magento\Payment\Model\Method\Cc
 
         $externalModel->setOrderId($order->getId());
         $externalModel->setRealOrderId($order->getRealOrderId());
-        
+
 
         $externalModel->setAmount($amount);
         $externalModel->setCancelUrl($cancel_url);
@@ -341,9 +340,6 @@ class PaymentModel extends \Magento\Payment\Model\Method\Cc
      */
     public function canUseForCurrency($currencyCode)
     {
-        if (!in_array($currencyCode, $this->_supportedCurrencyCodes)) {
-            return false;
-        }
         return true;
     }
 
